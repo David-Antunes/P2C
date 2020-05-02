@@ -372,14 +372,14 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 		
 		while(i < n) 
 		{
-			Parcel p = cartography[i];
+			p = cartography[i];
 			if(sameIdentification(p.identification, cartography[pos].identification,3))
 				break;
 			else
 			{
 				i++;
 			}
-			
+		
 		}
 		int max = p.nHoles <= p.edge.nVertexes ? p.edge.nVertexes : p.nHoles;
 		Parcel maxParcel = p;
@@ -402,8 +402,7 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			}
 			i++;
 		}
-		showIdentification(position, maxParcel.identification, max);
-		printf("\n");
+		showParcel(position, maxParcel, max);
 	}
 }
 
