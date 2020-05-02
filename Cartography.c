@@ -25,7 +25,7 @@ COMENTÃRIO
 
  Coloque aqui a identificaÃ§Ã£o do grupo, mais os seus comentÃ¡rios, como
  se pede no enunciado.
-
+rrr
 */
 
 #include "Cartography.h"
@@ -335,11 +335,55 @@ static void commandListCartography(Cartography cartography, int n)
 }
 
 // M pos
+
+/*
+
+Comando Máximo - Dada uma parcela indicada através duma posição no vetor, 
+descobre e mostra qual a parcela dessa freguesia que tem mais vértices 
+(considerando todos os anéis - exterior e interiores). 
+Em caso de parcelas empatadas, mostra qualquer uma delas.
+
+*/
+
 static void commandMaximum(int pos, Cartography cartography, int n)
 {
 	if( !checkArgs(pos) || !checkPos(pos, n) )
-		return;
-	////// FAZER
+		return NULL;
+	
+	int i = 0;
+	Parcel p;
+	
+	while(i < n) 
+	{
+		Parcel p = cartography[i];
+		if(sameIdentification(p.identification, cartography[pos].identification,3))
+			break;
+		else
+		{
+			i++;
+		}
+		
+	}
+	int max = p.nHoles <= p.edge.nVertexes ? p.edge.nVertexes : p.nHoles;
+	Parcel maxParcel = p;
+	i++;
+	while(sameIdentification(p.identification, cartography[i].identification,3))
+	{
+		if(max < cartography[i].edge.nVertexes)
+		{
+			max = cartography[i].edge.nVertexes;
+			p = cartography[i];
+		}
+
+		if(max < cartography[i].n.holes)
+		{
+			max = cartography[i].edge.nVertexes;
+			p = cartography[i];
+		}
+		i++;
+	}
+
+	return p;
 }
 
 void interpreter(Cartography cartography, int n)
