@@ -268,7 +268,7 @@ bool adjacentParcels(Parcel a, Parcel b)
 
 /* CARTOGRAPHY -------------------------------------- */
 
-int WloadCartography(String fileName, Cartography cartography)
+int loadCartography(String fileName, Cartography cartography)
 {
 	FILE *f;
 	int i;
