@@ -334,6 +334,20 @@ static void commandListCartography(Cartography cartography, int n)
 	showCartography(cartography, n);
 }
 
+
+
+static int maxHoleVertexes(Parcel p) {
+	if(p.nHoles == 0)
+		return 0;
+	int max = p.edge.nVertexes;
+	for(int i = 0; i < p.nHoles; i++)
+	{
+		if(max < p.holes[i].nVertexes)
+			max = p.holes[i].nVertexes;
+	}
+	return max;
+}
+
 // M pos
 
 /*
@@ -347,55 +361,51 @@ Em caso de parcelas empatadas, mostra qualquer uma delas.
 
 static void commandMaximum(int pos, Cartography cartography, int n)
 {
-	if( !checkArgs(pos) || !checkPos(pos, n) )
-		return NULL;
-	
-	int i = 0;
-	Parcel p;
-	
-	while(i < n) 
+	if( !checkArgs(pos) || !checkPos(pos, n) ) 
 	{
-		Parcel p = cartography[i];
-		if(sameIdentification(p.identification, cartography[pos].identification,3))
-			break;
-		else
+		printf("ERRO: POSICAO INEXISTENTE!\n");
+	}
+	else
+	{
+		int i = 0;
+		Parcel p;
+		
+		while(i < n) 
 		{
+			Parcel p = cartography[i];
+			if(sameIdentification(p.identification, cartography[pos].identification,3))
+				break;
+			else
+			{
+				i++;
+			}
+			
+		}
+		int max = p.nHoles <= p.edge.nVertexes ? p.edge.nVertexes : p.nHoles;
+		Parcel maxParcel = p;
+		i++;
+		int position = 1;
+		while(sameIdentification(p.identification, cartography[i].identification,3))
+		{
+			if(max < cartography[i].edge.nVertexes)
+			{
+				max = cartography[i].edge.nVertexes;
+				p = cartography[i];
+				position = i;
+			}
+			int maxHole = maxHoleVertexes(cartography[i]);
+			if(max < maxHole)
+			{
+				max = maxHole;
+				p = cartography[i];
+				position = i;
+			}
 			i++;
 		}
-		
+		showIdentification(position, maxParcel.identification, 3);
+		printf("\n");
 	}
-	int max = p.nHoles <= p.edge.nVertexes ? p.edge.nVertexes : p.nHoles;
-	Parcel maxParcel = p;
-	i++;
-	while(sameIdentification(p.identification, cartography[i].identification,3))
-	{
-		if(max < cartography[i].edge.nVertexes)
-		{
-			max = cartography[i].edge.nVertexes;
-			p = cartography[i];
-		}
-		int maxHole = maxHoleVertexes(cartography[i]);
-		if(max < maxHole)
-		{
-			max = maxHole;
-			p = cartography[i];
-		}
-		i++;
-	}
-
-	return p;
-}
-
-static int maxHoleVertexes(Parcel p) {
-	if(p.nHoles == 0)
-		return 0;
-	int max = p.edge.nVertexes;
-	for(int i = 0; i < p.nHoles; i++)
-	{
-		if(max < p.holes[i].nVertexes)
-			max = p.holes[i].nVertexes;
-	}
-	return max;
+	
 }
 
 
@@ -441,10 +451,6 @@ static void CommandAdjecent(int pos, Cartography cartography, int n)
 
 }
 
-static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
-{
-
-}
 
 static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 {
@@ -475,43 +481,43 @@ void interpreter(Cartography cartography, int n)
 				commandMaximum(arg1, cartography, n);
 				break;
 
-			case 'X': case 'x':	// maximo
+			case 'X': case 'x':	// extremos
 				commandParcelExtremes(cartography, n);
 				break;
 
-			case 'R': case 'r':	// maximo
+			case 'R': case 'r':	// resumo
 				commandResume(arg1, cartography, n);
 				break;	
 
-			case 'V': case 'v':	// maximo
+			case 'V': case 'v':	// viagem
 				commandTravel(arg1, arg2, arg3, cartography, n);
 				break;	
 
-			case 'Q': case 'q':	// maximo
+			case 'Q': case 'q':	// quantos
 				commandHowMany(arg1, cartography, n);
 				break;
 
-			case 'C': case 'c':	// maximo
+			case 'C': case 'c':	// concelhos
 				commandCounties(cartography, n);
 				break;
 
-			case 'D': case 'd':	// maximo
+			case 'D': case 'd':	// distritos
 				commandDistricts(cartography, n);
 				break;
 
-			case 'P': case 'p':	// maximo
+			case 'P': case 'p':	// parcela
 				commandParcel(arg1, arg2, cartography, n);
 				break;
 
-			case 'A': case 'a':	// maximo
+			case 'A': case 'a':	// adjacencia
 				CommandAdjecent(arg1, cartography, n);
 				break;
 
-			case 'F': case 'f':	// maximo
+			case 'F': case 'f':	// fronteira
 				commandFrontier(arg1, arg2, cartography, n);
 				break;
 			
-			case 'T': case 't':	// maximo
+			case 'T': case 't':	// particao
 				commandPartition(arg1, cartography, n);
 				break;
 
