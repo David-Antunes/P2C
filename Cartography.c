@@ -405,27 +405,56 @@ static void commandParcelExtremes(Cartography cartography, int n)
 
 }
 
+static void commandResume(int pos, Cartography cartography, int n)
+{
+
+}
+
+static void commandTravel(double lat, double lon, int pos, Cartography cartography, int n)
+{
+
+}
+
+static void commandHowMany(int pos, Cartography cartography, int n)
+{
+
+}
+
+static void commandCounties(Cartography cartography, int n)
+{
+
+}
+
+static void commandDistricts(Cartography cartography, int n)
+{
+
+}
+
+static void commandParcel(double lat, double lon, Cartography cartography, int n)
+{
+
+}
 
 
+static void CommandAdjecent(int pos, Cartography cartography, int n)
+{
 
+}
 
+static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
+{
 
+}
 
+static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
+{
 
+}
 
+static void commandPartition(double distance, Cartography cartography, int n)
+{
 
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
 void interpreter(Cartography cartography, int n)
 {
@@ -450,12 +479,16 @@ void interpreter(Cartography cartography, int n)
 				commandParcelExtremes(cartography, n);
 				break;
 
+			case 'R': case 'r':	// maximo
+				commandResume(arg1, cartography, n);
+				break;	
+
 			case 'V': case 'v':	// maximo
-				CommandTravel(arg1, arg2, arg3, cartography, n);
+				commandTravel(arg1, arg2, arg3, cartography, n);
 				break;	
 
 			case 'Q': case 'q':	// maximo
-				CommandHowMany(arg1, cartography, n);
+				commandHowMany(arg1, cartography, n);
 				break;
 
 			case 'C': case 'c':	// maximo
