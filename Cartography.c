@@ -390,22 +390,21 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			if(max < cartography[i].edge.nVertexes)
 			{
 				max = cartography[i].edge.nVertexes;
-				p = cartography[i];
+				maxParcel = cartography[i];
 				position = i;
 			}
 			int maxHole = maxHoleVertexes(cartography[i]);
 			if(max < maxHole)
 			{
 				max = maxHole;
-				p = cartography[i];
+				maxParcel = cartography[i];
 				position = i;
 			}
 			i++;
 		}
-		showIdentification(position, maxParcel.identification, 3);
+		showIdentification(position, maxParcel.identification, max);
 		printf("\n");
 	}
-	
 }
 
 
@@ -432,7 +431,7 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 
 static void commandCounties(Cartography cartography, int n)
 {
-
+	
 }
 
 static void commandDistricts(Cartography cartography, int n)
