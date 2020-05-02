@@ -398,6 +398,35 @@ static int maxHoleVertexes(Parcel p) {
 	return max;
 }
 
+
+
+static void commandParcelExtremes(Cartography cartography, int n)
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void interpreter(Cartography cartography, int n)
 {
 	String commandLine;
@@ -415,6 +444,42 @@ void interpreter(Cartography cartography, int n)
 
 			case 'M': case 'm':	// maximo
 				commandMaximum(arg1, cartography, n);
+				break;
+
+			case 'X': case 'x':	// maximo
+				commandParcelExtremes(cartography, n);
+				break;
+
+			case 'V': case 'v':	// maximo
+				CommandTravel(arg1, arg2, arg3, cartography, n);
+				break;	
+
+			case 'Q': case 'q':	// maximo
+				CommandHowMany(arg1, cartography, n);
+				break;
+
+			case 'C': case 'c':	// maximo
+				commandCounties(cartography, n);
+				break;
+
+			case 'D': case 'd':	// maximo
+				commandDistricts(cartography, n);
+				break;
+
+			case 'P': case 'p':	// maximo
+				commandParcel(arg1, arg2, cartography, n);
+				break;
+
+			case 'A': case 'a':	// maximo
+				CommandAdjecent(arg1, cartography, n);
+				break;
+
+			case 'F': case 'f':	// maximo
+				commandFrontier(arg1, arg2, cartography, n);
+				break;
+			
+			case 'T': case 't':	// maximo
+				commandPartition(arg1, cartography, n);
 				break;
 
 			case 'Z': case 'z':	// terminar
