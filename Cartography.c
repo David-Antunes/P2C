@@ -268,7 +268,7 @@ bool adjacentParcels(Parcel a, Parcel b)
 
 /* CARTOGRAPHY -------------------------------------- */
 
-int loadCartography(String fileName, Cartography cartography)
+int WloadCartography(String fileName, Cartography cartography)
 {
 	FILE *f;
 	int i;
@@ -364,9 +364,9 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 	if( !checkArgs(pos) || !checkPos(pos, n) ) 
 	{
 		printf("ERRO: POSICAO INEXISTENTE!\n");
+		return;
 	}
-	else
-	{
+
 		int i = 0;
 		Parcel p;
 		
@@ -403,13 +403,33 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			i++;
 		}
 		showParcel(position, maxParcel, max);
-	}
 }
 
 
 
 static void commandParcelExtremes(Cartography cartography, int n)
 {
+	if( n = 0 || cartography == NULL);
+	{
+		printf("ERRO: MAPA VAZIO!\n");
+		return;
+	}
+
+	Coordinates north = cartography[0].edge.vertexes[0];
+	Coordinates south = cartography[0].edge.vertexes[0];
+	Coordinates east = cartography[0].edge.vertexes[0];
+	Coordinates west = cartography[0].edge.vertexes[0];
+	Parcel p_north = cartography[0];
+	Parcel p_south = cartography[0];
+	Parcel p_east = cartography[0];
+	Parcel p_west = cartography[0];
+
+	for(int i = 0; i < n ; i++)
+	{
+
+	}
+
+	
 
 }
 
