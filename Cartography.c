@@ -25,7 +25,7 @@ COMENTÃRIO
 
  Coloque aqui a identificaÃ§Ã£o do grupo, mais os seus comentÃ¡rios, como
  se pede no enunciado.
-rrr
+
 */
 
 #include "Cartography.h"
@@ -374,16 +374,28 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			max = cartography[i].edge.nVertexes;
 			p = cartography[i];
 		}
-
-		if(max < cartography[i].n.holes)
+		int maxHole = maxHoleVertexes(cartography[i]);
+		if(max < maxHole)
 		{
-			max = cartography[i].edge.nVertexes;
+			max = maxHole;
 			p = cartography[i];
 		}
 		i++;
 	}
 
 	return p;
+}
+
+static int maxHoleVertexes(Parcel p) {
+	if(p.nHoles == 0)
+		return 0;
+	int max = p.edge.nVertexes;
+	for(int i = 0; i < p.nHoles; i++)
+	{
+		if(max < p.holes[i].nVertexes)
+			max = p.holes[i].nVertexes;
+	}
+	return max;
 }
 
 void interpreter(Cartography cartography, int n)
