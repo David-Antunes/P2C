@@ -377,7 +377,7 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 				break;
 			}else
 			{
-				i--;
+				i++; "Why did you have i--"
 			}
 		
 		}
