@@ -483,7 +483,7 @@ void extremeParcel(Cartography carts, int n, BoolFun b1, BoolFun b2,BoolFun b3, 
 
 static void commandParcelExtremes(Cartography cartography, int n)
 {
- 	if( n = 0 || cartography == NULL);
+ 	if( n == 0 || cartography == NULL)
 	{
 		printf("ERRO: MAPA VAZIO!\n");
 		return;
