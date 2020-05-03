@@ -669,9 +669,41 @@ static void commandDistricts(Cartography cartography, int n)
 	showStringVector(districts, ndistricts);
 }
 
+static bool hasCoords(double lat, double lon, Ring r)
+{
+	Coordinates cords = coord(lat, lon);
+	for(int i = 0; i < r.nVertexes; i++)
+	{
+		if(sameCoordinates(cords, r.vertexes[i]))
+			return true;
+	}
+	return false;
+}
+
+
 static void commandParcel(double lat, double lon, Cartography cartography, int n)
 {
+	bool found = false;
+	int pos = -1;
+	for(int i = 0; i < n && !found; i++)
+	{
 
+		if(hasCoords(lat,lon, cartography[i].edge))
+		{
+				found = true;
+				pos = i;
+		}
+	}
+	if(found)
+	{
+	showIdentification(pos,cartography[pos].identification, 3);
+	printf("\n");
+	}
+	else
+	{
+		printf("FORA DO MAPA\n");
+	}
+	
 }
 
 
