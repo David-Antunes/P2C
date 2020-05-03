@@ -291,7 +291,7 @@ static int findLast(Cartography cartography, int n, int j, Identification id)
 		if( !sameIdentification(cartography[j].identification, id, 3) )
 			return j-1;
 	}
-	return n;
+	return n-1;
 }
 
 void showCartography(Cartography cartography, int n)
@@ -415,6 +415,20 @@ A function that gives me the max Parcel of a cartography with the b condition, n
 
 typedef bool BoolFun(Coordinates,Coordinates);
 
+bool northest(Coordinates c1,Coordinates c2){
+	return c1.lat>c2.lat;
+}
+
+bool southest(Coordinates c1,Coordinates c2){
+	return !northest(c1,c2);
+}
+bool easthern(Coordinates c1,Coordinates c2){
+	return c1.lon>c2.lon;
+}
+bool westest(Coordinates c1,Coordinates c2){
+	return !easthern(c1,c2);
+}
+
 Coordinates extremeCoordinates(Parcel p1, BoolFun b){
 	Ring r = p1.edge;
 	Coordinates c1 = r.vertexes[0];
@@ -429,21 +443,10 @@ Coordinates extremeCoordinates(Parcel p1, BoolFun b){
 	
 }
 
-bool northest(Coordinates c1,Coordinates c2){
-	return c1.lat>c2.lat;
-}
-
-bool southest(Coordinates c1,Coordinates c2){
-	return !northest(c1,c2);
-}
-bool easthern(Coordinates c1,Coordinates c2){
-	return c1.lon>c2.lon;
-}
-bool westest(Coordinates c1,Coordinates c2){
-	return !easthern(c1,c2);
-}
 // bol: north south east west
-void extremeParcel(Cartography carts, int n, BoolFun north, BoolFun south,BoolFun east, BoolFun west ){
+static void extremeParcel(Cartography carts, int n, BoolFun north, BoolFun south,BoolFun east, BoolFun west ) {
+	printf("CORRE ATE AQUI\n");
+	
 	Parcel p1, p2, p3, p4 = carts[0];
 	int pos1,pos2,pos3,pos4 = 0;
 	Coordinates c1 = extremeCoordinates(p1,north);
@@ -451,8 +454,8 @@ void extremeParcel(Cartography carts, int n, BoolFun north, BoolFun south,BoolFu
 	Coordinates c3 = extremeCoordinates(p3,east);
 	Coordinates c4 = extremeCoordinates(p4,west);
 	Coordinates aux;
-
-	for(int i=1;i<n;i++){
+/* 	for(int i=1;i<n;i++)
+	{
 		
 		aux = extremeCoordinates(carts[i],north);
 		if(north(c1,aux)){ // if c1 the northest
@@ -478,23 +481,25 @@ void extremeParcel(Cartography carts, int n, BoolFun north, BoolFun south,BoolFu
 			c4 = aux;
 			pos4 = i;
 		}
-		showParcel(pos1, p1, 'N');
+
+	} */
+		/* showParcel(pos1, p1, 'N');
 		showParcel(pos2, p2, 'E');
 		showParcel(pos3, p3, 'S');
-		showParcel(pos4, p4, 'W');
-
-	}
+		showParcel(pos4, p4, 'W'); */
 }
 
 static void commandParcelExtremes(Cartography cartography, int n)
 {
- 	if( n == 0 || cartography == NULL)
+ 	 printf("CORRE ATE AQUI\n");
+ 	/*if( n == 0 || cartography == NULL)
 	{
 		printf("ERRO: MAPA VAZIO!\n");
 		return;
-	}
-
-	extremeParcel(cartography,n, northest, southest,easthern,westest);
+	} */
+	
+		printf("CORRE ATE AQUI\n");
+	extremeParcel(cartography,n, &northest, &southest,&easthern,&westest); 
 
 }
 
@@ -600,6 +605,7 @@ void interpreter(Cartography cartography, int n)
 				break;
 
 			case 'X': case 'x':	// extremos
+				printf("CORRE ATE AQUI\n");
 				commandParcelExtremes(cartography, n);
 				break;
 
