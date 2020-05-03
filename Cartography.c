@@ -520,14 +520,9 @@ static void commandCounties(Cartography cartography, int n)
 		}
 		i++;
 	}
+	ncounties++;
 	qsort(counties, ncounties, sizeof(String), v_strcmp);
-
-	i = 0;
-	while(i <= ncounties)
-	{
-		printf("%s\n", counties[i]);
-		i++;
-	}
+	showStringVector(counties, ncounties);
 }
 
 static void commandDistricts(Cartography cartography, int n)
@@ -545,14 +540,9 @@ static void commandDistricts(Cartography cartography, int n)
 		}
 		i++;
 	}
+	ndistricts++;
 	qsort(districts, ndistricts, sizeof(String), v_strcmp);
-
-	i = 0;
-	while(i <= ndistricts)
-	{
-		printf("%s\n", districts[i]);
-		i++;
-	}
+	showStringVector(districts, ndistricts);
 }
 
 static void commandParcel(double lat, double lon, Cartography cartography, int n)
