@@ -368,16 +368,18 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 
 		int i = pos;
 		Parcel maxParcel = cartography[i];
-		while(i < n) 
+		i--;
+		while(0 <= i) 
 		{
 			
-			if(sameIdentification(maxParcel.identification, cartography[pos].identification,3))
+			if(!sameIdentification(cartography[i].identification, maxParcel.identification,3))
 			{
-				maxParcel = cartography[i];
+				maxParcel = cartography[i+1];
 				break;
-			}else
+			}
+			else
 			{
-				i++; "Why did you have i--"
+				i--;
 			}
 		
 		}
@@ -405,12 +407,10 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 		}
 		showParcel(position, maxParcel, max);
 }
-
-
-
 /**
 A function that gives me the max Parcel of a cartography with the b condition, not counting holes
 */
+
 Coordinates extremeCoordinates(Parcel p1, BoolFun b){
 	Ring r = p1.edge;
 	Coordinates c1 = r.vertexes[0];
@@ -469,7 +469,7 @@ void extremeParcel(Cartography carts, int n, BoolFun b1, BoolFun b2){
 		printf("West: distrito: %s; concelho: %s; freguesia %s\n",p4.identification.distrito,p4.identification.concelho,p4.identification.freguesia);
 	}
 }
- */
+
 static void commandParcelExtremes(Cartography cartography, int n)
 {
 /* 	if( n = 0 || cartography == NULL);
@@ -479,7 +479,7 @@ static void commandParcelExtremes(Cartography cartography, int n)
 	}
 
 	extremeParcel(cartography,n, northest, easthern);
- */
+	*/
 }
 
 static void commandResume(int pos, Cartography cartography, int n)
