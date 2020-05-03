@@ -483,14 +483,59 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 
 }
 
+static int v_strcmp(const void *str1, const void *str2){
+	return strcmp(str1,str2);
+}
+
+
 static void commandCounties(Cartography cartography, int n)
 {
-	
+	StringVector counties;
+	strcpy(counties[0], cartography[0].identification.concelho);
+	int i = 0;
+	int ncounties = 0;
+	while(i < n)
+	{
+		if(strcmp(counties[ncounties], cartography[i].identification.concelho))
+		{
+			ncounties++;
+			strcpy(counties[ncounties], cartography[i].identification.concelho);
+		}
+		i++;
+	}
+	qsort(counties, ncounties, sizeof(String), v_strcmp);
+
+	i = 0;
+	while(i <= ncounties)
+	{
+		printf("%s\n", counties[i]);
+		i++;
+	}
 }
 
 static void commandDistricts(Cartography cartography, int n)
 {
+	StringVector districts;
+	strcpy(districts[0], cartography[0].identification.distrito);
+	int i = 0;
+	int ndistricts = 0;
+	while(i < n)
+	{
+		if(strcmp(districts[ndistricts], cartography[i].identification.distrito))
+		{
+			ndistricts++;
+			strcpy(districts[ndistricts], cartography[i].identification.distrito);
+		}
+		i++;
+	}
+	qsort(districts, ndistricts, sizeof(String), v_strcmp);
 
+	i = 0;
+	while(i <= ndistricts)
+	{
+		printf("%s\n", districts[i]);
+		i++;
+	}
 }
 
 static void commandParcel(double lat, double lon, Cartography cartography, int n)
