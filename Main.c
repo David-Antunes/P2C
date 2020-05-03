@@ -41,12 +41,21 @@ static void showMemory(bool show)
 	#endif
 	}
 }
-
+/* 
 int main(void)
 {
 	internalTests(false);
 	nCartography = loadCartography("map.txt", cartography);
 	showMemory(false);
+	showCartography(cartography, nCartography);
+	interpreter(cartography, nCartography);
+	return 0;
+}
+ */
+// Nova Main de LAP
+int main(void)
+{
+	nCartography = loadCartography("map.txt", &cartography);
 	showCartography(cartography, nCartography);
 	interpreter(cartography, nCartography);
 	return 0;
