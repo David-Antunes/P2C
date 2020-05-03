@@ -78,7 +78,7 @@ typedef struct {	// Anel - um caminho linear fechado que nÃ£o se auto-intersec
 
 bool insideRing(Coordinates c, Ring r);
 bool adjacentRings(Ring a, Ring b);
-
+typedef bool BoolFun(Coordinates,Coordinates);
 
 
 /* PARCEL -------------------------------------- */

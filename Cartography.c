@@ -267,7 +267,6 @@ bool adjacentParcels(Parcel a, Parcel b)
 
 
 /* CARTOGRAPHY -------------------------------------- */
-//HEre  David
 int loadCartography(String fileName, Cartography cartography)
 {
 	FILE *f;
@@ -358,12 +357,12 @@ descobre e mostra qual a parcela dessa freguesia que tem mais vértices
 Em caso de parcelas empatadas, mostra qualquer uma delas.
 
 */
-
+//what the fuck in 'n' ?
 static void commandMaximum(int pos, Cartography cartography, int n)
 {
 	if( !checkArgs(pos) || !checkPos(pos, n) ) 
 	{
-		printf("ERRO: POSICAO INEXISTENTE!\n");
+		// printf("ERRO: POSICAO INEXISTENTE!\n"); there is no need, chechArgs and checkPos have printfs
 		return;
 	}
 
@@ -372,8 +371,9 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 		
 		while(i < n) 
 		{
-			p = cartography[i];
+			//p = cartography[i];
 			if(sameIdentification(p.identification, cartography[pos].identification,3))
+				p = cartography[i]; //how about this David?
 				break;
 			else
 			{
@@ -381,6 +381,7 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			}
 		
 		}
+		//David, why are you comparing number of wholes with number of vertexes of a ring, there are more nVertexes than nHoles
 		int max = p.nHoles <= p.edge.nVertexes ? p.edge.nVertexes : p.nHoles;
 		Parcel maxParcel = p;
 		i++;
@@ -407,6 +408,53 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 
 
 
+/**
+A function that gives me the max Parcel of a cartography with the b condition, not counting holes
+*/
+
+bool northest(Coordinates c1,Coordinates c2){
+	return c1.lat>=c2.lat>;
+}
+
+bool easthern(Coordinates c1,Coordinates c2){
+	return c1.lon>c2.lon>;
+}
+Parcel extremeParcel(Cartography carts, int n, boolFun b1, boolFun b2){
+	Parcel p1, p2, p3, p4 = carts[0];
+	Coordinates c1 = extremeCoordinates(p1,b1);
+	Coordinates c2 = extremeCoordinates(p2,!b1);
+	Coordinates c3 = extremeCoordinates(p3,b2);
+	Coordinates c4 = extremeCoordinates(p4,!b2);
+	Coordinates aux;
+
+	for(int i=1;i<n;i++){
+		
+		aux = extremeCoordinates(carts[i],b);
+		if(!b(c1,aux)){ // if c1 the northest
+			p1 = carts[i];
+			c1 = aux;
+		}
+
+		if(b(c1,aux)){ //compare the southest
+			p2 = carts[i];
+			c2 = aux;
+		}
+
+		if(!b2(c1,aux)){ //compare the eastest
+			p3 = carts[i];
+			c3 = aux;
+		}
+
+		if(b2(c1,aux)){ //compare the westest
+			p4 = carts[i];
+			c4 = aux;
+		}
+
+		//missing the printf
+	}
+	return p;
+}
+
 static void commandParcelExtremes(Cartography cartography, int n)
 {
 	if( n = 0 || cartography == NULL);
@@ -415,21 +463,7 @@ static void commandParcelExtremes(Cartography cartography, int n)
 		return;
 	}
 
-	Coordinates north = cartography[0].edge.vertexes[0];
-	Coordinates south = cartography[0].edge.vertexes[0];
-	Coordinates east = cartography[0].edge.vertexes[0];
-	Coordinates west = cartography[0].edge.vertexes[0];
-	Parcel p_north = cartography[0];
-	Parcel p_south = cartography[0];
-	Parcel p_east = cartography[0];
-	Parcel p_west = cartography[0];
-
-	for(int i = 0; i < n ; i++)
-	{
-
-	}
-
-	
+	extremeParcel(cartography,n, northest, easthern);
 
 }
 
