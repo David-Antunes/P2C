@@ -170,8 +170,24 @@ static void showRectangle(Rectangle r)
 
 static Rectangle calculateBoundingBox(Coordinates vs[], int n)
 {
-////// FAZER
-	return rect(coord(-9999,-9999), coord(9999,9999));
+	double tx = vs[0].lat;
+	double ty = vs[0].lon;
+	double bx = vs[0].lat;
+	double by = vs[0].lon;
+
+	for(int i = 1; i < n; i++)
+	{
+		if(vs[i].lat > tx)
+			tx = vs[i].lat;
+		if(vs[i].lon < ty)
+			ty = vs[i].lon;
+		if(vs[i].lat < bx)
+			bx = vs[i].lat;
+		if(vs[i].lon > by)
+			by = vs[i].lon;	
+	}
+
+	return rect(coord(tx,ty), coord(bx,by));
 }
 
 bool insideRectangle(Coordinates c, Rectangle r)
@@ -506,13 +522,29 @@ static void commandParcelExtremes(Cartography cartography, int n)
 	} 
 	
 	
-	extremeParcel(cartography,n, &northest, &southest,&easthern,&westest); 
+	extremeParcel(cartography,n, northest, southest,easthern,westest); 
 
 }
 
 static void commandResume(int pos, Cartography cartography, int n)
 {
+	Parcel p = cartography[pos];
 
+	showIdentification(pos, p.identification,3);
+
+		printf("\n%4s %d ","", p.edge.nVertexes);
+		showRectangle(p.edge.boundingBox);
+		printf("\n");
+
+	if(p.nHoles != 0)
+	{
+		for (int i = 0; i < p.nHoles; i++)
+		{
+		printf("%4s %d ","", p.holes[i].nVertexes);
+		showRectangle(p.holes[i].boundingBox);
+		printf("\n");
+		}
+	}
 }
 
 static void commandTravel(double lat, double lon, int pos, Cartography cartography, int n)
@@ -592,6 +624,23 @@ static void commandPartition(double distance, Cartography cartography, int n)
 
 }
 
+static void commandCountyHoles(Cartography cartography, int n)
+{
+	for(int i = 0; i < n; i++){
+		if(cartography[i].nHoles != 0)
+		{
+			showIdentification(i, cartography[i].identification,3);
+			printf("\n");
+		}
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		commandResume(i,cartography, n);
+	}
+	
+}
+
 void interpreter(Cartography cartography, int n)
 {
 	String commandLine;
@@ -649,6 +698,10 @@ void interpreter(Cartography cartography, int n)
 			
 			case 'T': case 't':	// particao
 				commandPartition(arg1, cartography, n);
+				break;
+			
+			case 'H': case 'h':	// particao
+				commandCountyHoles(cartography, n);
 				break;
 
 			case 'Z': case 'z':	// terminar
