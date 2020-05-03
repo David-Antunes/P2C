@@ -366,27 +366,28 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 		return;
 	}
 
-		int i = 0;
-		Parcel p;
-		
+		int i = pos;
+		Parcel maxParcel = cartography[i];
 		while(i < n) 
 		{
-			//p = cartography[i];
-			if(sameIdentification(p.identification, cartography[pos].identification,3))
-				p = cartography[i]; //how about this David?
+			
+			if(sameIdentification(maxParcel.identification, cartography[pos].identification,3))
+			{
+				maxParcel = cartography[i];
 				break;
+			}
 			else
 			{
-				i++;
+				i--;
 			}
 		
 		}
 		//David, why are you comparing number of wholes with number of vertexes of a ring, there are more nVertexes than nHoles
-		int max = p.nHoles <= p.edge.nVertexes ? p.edge.nVertexes : p.nHoles;
-		Parcel maxParcel = p;
+		int max = maxHoleVertexes(maxParcel);
+		max = max < maxParcel.edge.nVertexes ? maxParcel.edge.nVertexes : max;
+		int position = i;
 		i++;
-		int position = 1;
-		while(sameIdentification(p.identification, cartography[i].identification,3))
+		while(sameIdentification(maxParcel.identification, cartography[i].identification,3))
 		{
 			if(max < cartography[i].edge.nVertexes)
 			{
@@ -411,7 +412,7 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 /**
 A function that gives me the max Parcel of a cartography with the b condition, not counting holes
 */
-
+/* 
 bool northest(Coordinates c1,Coordinates c2){
 	return c1.lat>=c2.lat>;
 }
@@ -454,17 +455,17 @@ Parcel extremeParcel(Cartography carts, int n, boolFun b1, boolFun b2){
 	}
 	return p;
 }
-
+ */
 static void commandParcelExtremes(Cartography cartography, int n)
 {
-	if( n = 0 || cartography == NULL);
+/* 	if( n = 0 || cartography == NULL);
 	{
 		printf("ERRO: MAPA VAZIO!\n");
 		return;
 	}
 
 	extremeParcel(cartography,n, northest, easthern);
-
+ */
 }
 
 static void commandResume(int pos, Cartography cartography, int n)
