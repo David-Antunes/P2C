@@ -553,6 +553,61 @@ static void commandTravel(double lat, double lon, int pos, Cartography cartograp
 
 static void commandHowMany(int pos, Cartography cartography, int n)
 {
+	int towns = 0;
+	int counties = 0;
+	int districts = 0;
+
+	int i = pos;
+	Parcel p = cartography[pos];
+	towns++;
+	i--;
+	while(0 < i)
+	{
+		if(sameIdentification(p.identification, cartography[i].identification,3))
+		{
+		towns++;
+		p = cartography[i];
+		i--;	
+		}
+		else
+		{
+			break;
+		}
+		
+		
+	}
+
+	p = cartography[pos];
+	i = pos;
+	i++;
+	while(sameIdentification(p.identification, cartography[i].identification,3))
+	{
+		towns++;
+		p = cartography[i];
+		i++;
+	}
+
+	for(i = 0; i < n; i++)
+	{
+		if(sameIdentification(cartography[i].identification, cartography[pos].identification,2))
+		{
+			counties++;
+			if(sameIdentification(cartography[i].identification, cartography[pos].identification,1))
+			{
+				districts++;
+			}
+		}
+	}
+
+
+	//Freguesias
+	showParcel(pos, cartography[pos], towns);
+	//Concelhos
+	showIdentification(pos, cartography[pos].identification, 2);
+	showValue(counties);
+	//Distritos
+	showIdentification(pos, cartography[pos].identification, 1);
+	showValue(districts);
 
 }
 
@@ -631,11 +686,6 @@ static void commandCountyHoles(Cartography cartography, int n)
 			showIdentification(i, cartography[i].identification,3);
 			printf("\n");
 		}
-	}
-
-	for (int i = 0; i < n; i++)
-	{
-		commandResume(i,cartography, n);
 	}
 	
 }
