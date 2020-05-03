@@ -267,7 +267,7 @@ bool adjacentParcels(Parcel a, Parcel b)
 
 
 /* CARTOGRAPHY -------------------------------------- */
-int loadCartography(String fileName, Cartography cartography)
+int loadCartography(String fileName, Cartography *cartography)
 {
 	FILE *f;
 	int i;
@@ -278,7 +278,7 @@ int loadCartography(String fileName, Cartography cartography)
 	if( n > MAX_PARCELS )
 		error("Demasiadas parcelas no ficheiro");
 	for( i = 0 ; i < n ; i++ ) {
-		cartography[i] = readParcel(f);
+		(*cartography)[i] = readParcel(f);
 	}
 	fclose(f);
 	return n;
@@ -366,27 +366,27 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 		return;
 	}
 
-		int i = 0;
-		Parcel p;
-		
+		int i = pos;
+		Parcel maxParcel = cartography[i];
 		while(i < n) 
 		{
-			//p = cartography[i];
-			if(sameIdentification(p.identification, cartography[pos].identification,3)){
-				p = cartography[i]; //how about this David?
+			
+			if(sameIdentification(maxParcel.identification, cartography[pos].identification,3))
+			{
+				maxParcel = cartography[i];
 				break;
 			}else
 			{
-				i++;
+				i--;
 			}
 		
 		}
 		//David, why are you comparing number of wholes with number of vertexes of a ring, there are more nVertexes than nHoles
-		int max = p.nHoles <= p.edge.nVertexes ? p.edge.nVertexes : p.nHoles;
-		Parcel maxParcel = p;
+		int max = maxHoleVertexes(maxParcel);
+		max = max < maxParcel.edge.nVertexes ? maxParcel.edge.nVertexes : max;
+		int position = i;
 		i++;
-		int position = 1;
-		while(sameIdentification(p.identification, cartography[i].identification,3))
+		while(sameIdentification(maxParcel.identification, cartography[i].identification,3))
 		{
 			if(max < cartography[i].edge.nVertexes)
 			{
@@ -469,17 +469,17 @@ void extremeParcel(Cartography carts, int n, BoolFun b1, BoolFun b2){
 		printf("West: distrito: %s; concelho: %s; freguesia %s\n",p4.identification.distrito,p4.identification.concelho,p4.identification.freguesia);
 	}
 }
-
+ */
 static void commandParcelExtremes(Cartography cartography, int n)
 {
-	if( n = 0 || cartography == NULL);
+/* 	if( n = 0 || cartography == NULL);
 	{
 		printf("ERRO: MAPA VAZIO!\n");
 		return;
 	}
 
 	extremeParcel(cartography,n, northest, easthern);
-
+ */
 }
 
 static void commandResume(int pos, Cartography cartography, int n)
@@ -497,14 +497,59 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 
 }
 
+static int v_strcmp(const void *str1, const void *str2){
+	return strcmp(str1,str2);
+}
+
+
 static void commandCounties(Cartography cartography, int n)
 {
-	
+	StringVector counties;
+	strcpy(counties[0], cartography[0].identification.concelho);
+	int i = 0;
+	int ncounties = 0;
+	while(i < n)
+	{
+		if(strcmp(counties[ncounties], cartography[i].identification.concelho))
+		{
+			ncounties++;
+			strcpy(counties[ncounties], cartography[i].identification.concelho);
+		}
+		i++;
+	}
+	qsort(counties, ncounties, sizeof(String), v_strcmp);
+
+	i = 0;
+	while(i <= ncounties)
+	{
+		printf("%s\n", counties[i]);
+		i++;
+	}
 }
 
 static void commandDistricts(Cartography cartography, int n)
 {
+	StringVector districts;
+	strcpy(districts[0], cartography[0].identification.distrito);
+	int i = 0;
+	int ndistricts = 0;
+	while(i < n)
+	{
+		if(strcmp(districts[ndistricts], cartography[i].identification.distrito))
+		{
+			ndistricts++;
+			strcpy(districts[ndistricts], cartography[i].identification.distrito);
+		}
+		i++;
+	}
+	qsort(districts, ndistricts, sizeof(String), v_strcmp);
 
+	i = 0;
+	while(i <= ndistricts)
+	{
+		printf("%s\n", districts[i]);
+		i++;
+	}
 }
 
 static void commandParcel(double lat, double lon, Cartography cartography, int n)
