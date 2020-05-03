@@ -416,14 +416,14 @@ A function that gives me the max Parcel of a cartography with the b condition, n
 typedef bool BoolFun(Coordinates,Coordinates);
 
 static bool northest(Coordinates c1,Coordinates c2){
-	return c1.lat>c2.lat;
+	return c1.lat>=c2.lat;
 }
 
 static bool southest(Coordinates c1,Coordinates c2){
 	return !northest(c1,c2);
 }
 static bool easthern(Coordinates c1,Coordinates c2){
-	return c1.lon>c2.lon;
+	return c1.lon>=c2.lon;
 }
 static bool westest(Coordinates c1,Coordinates c2){
 	return !easthern(c1,c2);
@@ -488,11 +488,12 @@ static void extremeParcel(Cartography carts, int n, BoolFun north, BoolFun south
 			pos4 = i;
 		}
 
-	}
-		showParcel(pos1, p1, 'N');
-		showParcel(pos2, p2, 'E');
-		showParcel(pos3, p3, 'S');
-		showParcel(pos4, p4, 'W');
+	}	
+	
+		showParcel(pos1, p1, -'N');
+		showParcel(pos2, p2, -'E');
+		showParcel(pos3, p3, -'S');
+		showParcel(pos4, p4, -'W');
 }
 
 static void commandParcelExtremes(Cartography cartography, int n)
