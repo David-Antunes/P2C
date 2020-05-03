@@ -372,10 +372,10 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 		while(i < n) 
 		{
 			//p = cartography[i];
-			if(sameIdentification(p.identification, cartography[pos].identification,3))
+			if(sameIdentification(p.identification, cartography[pos].identification,3)){
 				p = cartography[i]; //how about this David?
 				break;
-			else
+			}else
 			{
 				i++;
 			}
@@ -411,15 +411,28 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 /**
 A function that gives me the max Parcel of a cartography with the b condition, not counting holes
 */
+Coordinates extremeCoordinates(Parcel p1, BoolFun b){
+	Ring r = p1.edge;
+	Coordinates c1 = r.vertexes[0];
+	int n=r.nVertexes;
+	for (int i = 1; i < n; i++)
+	{
+		if(b(r.vertexes[i],c1)){
+			c1 = r.vertexes[i];
+		}
+	}
+	return c1;
+	
+}
 
 bool northest(Coordinates c1,Coordinates c2){
-	return c1.lat>=c2.lat>;
+	return c1.lat>=c2.lat;
 }
 
 bool easthern(Coordinates c1,Coordinates c2){
-	return c1.lon>c2.lon>;
+	return c1.lon>c2.lon;
 }
-Parcel extremeParcel(Cartography carts, int n, boolFun b1, boolFun b2){
+void extremeParcel(Cartography carts, int n, BoolFun b1, BoolFun b2){
 	Parcel p1, p2, p3, p4 = carts[0];
 	Coordinates c1 = extremeCoordinates(p1,b1);
 	Coordinates c2 = extremeCoordinates(p2,!b1);
@@ -429,30 +442,32 @@ Parcel extremeParcel(Cartography carts, int n, boolFun b1, boolFun b2){
 
 	for(int i=1;i<n;i++){
 		
-		aux = extremeCoordinates(carts[i],b);
+		aux = extremeCoordinates(carts[i],b1);
 		if(!b(c1,aux)){ // if c1 the northest
 			p1 = carts[i];
 			c1 = aux;
 		}
-
+		aux = extremeCoordinates(carts[i],!b1);
 		if(b(c1,aux)){ //compare the southest
 			p2 = carts[i];
 			c2 = aux;
 		}
-
-		if(!b2(c1,aux)){ //compare the eastest
+		aux = extremeCoordinates(carts[i],b2);
+		if(!b2(c1,aux)){ //compare the eastern
 			p3 = carts[i];
 			c3 = aux;
 		}
-
+		aux = extremeCoordinates(carts[i],!b2);
 		if(b2(c1,aux)){ //compare the westest
 			p4 = carts[i];
 			c4 = aux;
 		}
-
-		//missing the printf
+		printf("The most extreme parcels are: \n");
+		printf("North: distrito: %s; concelho: %s; freguesia %s\n",p1.identification.distrito,p1.identification.concelho,p1.identification.freguesia);
+		printf("South: distrito: %s; concelho: %s; freguesia %s\n",p2.identification.distrito,p2.identification.concelho,p2.identification.freguesia);
+		printf("East: distrito: %s; concelho: %s; freguesia %s\n",p3.identification.distrito,p1.identification.concelho,p3.identification.freguesia);
+		printf("West: distrito: %s; concelho: %s; freguesia %s\n",p4.identification.distrito,p4.identification.concelho,p4.identification.freguesia);
 	}
-	return p;
 }
 
 static void commandParcelExtremes(Cartography cartography, int n)
