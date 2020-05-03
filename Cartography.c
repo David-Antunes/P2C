@@ -38,6 +38,7 @@ static void showStringVector(StringVector sv, int n) {
 		printf("%s\n", sv[i]);
 	}
 }
+typedef bool BoolFun(Coordinates,Coordinates);
 
 /* UTIL */
 
@@ -381,7 +382,8 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			{
 				i--;
 			}
-		
+			
+			
 		}
 		//David, why are you comparing number of wholes with number of vertexes of a ring, there are more nVertexes than nHoles
 		int max = maxHoleVertexes(maxParcel);
@@ -431,37 +433,43 @@ bool northest(Coordinates c1,Coordinates c2){
 	return c1.lat>c2.lat;
 }
 
+bool southest(Coordinates c1,Coordinates c2){
+	return !northest(c1,c2);
+}
 bool easthern(Coordinates c1,Coordinates c2){
 	return c1.lon>c2.lon;
 }
-
-void extremeParcel(Cartography carts, int n, BoolFun b1, BoolFun b2){
+bool westest(Coordinates c1,Coordinates c2){
+	return !easthern(c1,c2);
+}
+// bol: north south east west
+void extremeParcel(Cartography carts, int n, BoolFun b1, BoolFun b2,BoolFun b3, BoolFun b4 ){
 	Parcel p1, p2, p3, p4 = carts[0];
 	Coordinates c1 = extremeCoordinates(p1,b1);
-	Coordinates c2 = extremeCoordinates(p2,!b1);
-	Coordinates c3 = extremeCoordinates(p3,b2);
-	Coordinates c4 = extremeCoordinates(p4,!b2);
+	Coordinates c2 = extremeCoordinates(p2,b2);
+	Coordinates c3 = extremeCoordinates(p3,b3);
+	Coordinates c4 = extremeCoordinates(p4,b4);
 	Coordinates aux;
 
 	for(int i=1;i<n;i++){
 		
 		aux = extremeCoordinates(carts[i],b1);
-		if(!b1(c1,aux)){ // if c1 the northest
+		if(b2(c1,aux)){ // if c1 the northest
 			p1 = carts[i];
 			c1 = aux;
 		}
-		aux = extremeCoordinates(carts[i],!b1);
-		if(b1(c1,aux)){ //compare the southest
+		aux = extremeCoordinates(carts[i],b2);
+		if(b1(c2,aux)){ //compare the southest
 			p2 = carts[i];
 			c2 = aux;
 		}
-		aux = extremeCoordinates(carts[i],b2);
-		if(!b2(c1,aux)){ //compare the eastern
+		aux = extremeCoordinates(carts[i],b3);
+		if(b4(c3,aux)){ //compare the eastern
 			p3 = carts[i];
 			c3 = aux;
 		}
-		aux = extremeCoordinates(carts[i],!b2);
-		if(b2(c1,aux)){ //compare the westest
+		aux = extremeCoordinates(carts[i],b4);
+		if(b3(c4,aux)){ //compare the westest
 			p4 = carts[i];
 			c4 = aux;
 		}
@@ -481,7 +489,7 @@ static void commandParcelExtremes(Cartography cartography, int n)
 		return;
 	}
 
-	extremeParcel(cartography,n, northest, easthern);
+	extremeParcel(cartography,n, northest, southest,easthern,westest);
 
 }
 
