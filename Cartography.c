@@ -443,41 +443,46 @@ bool westest(Coordinates c1,Coordinates c2){
 	return !easthern(c1,c2);
 }
 // bol: north south east west
-void extremeParcel(Cartography carts, int n, BoolFun b1, BoolFun b2,BoolFun b3, BoolFun b4 ){
+void extremeParcel(Cartography carts, int n, BoolFun north, BoolFun south,BoolFun east, BoolFun west ){
 	Parcel p1, p2, p3, p4 = carts[0];
-	Coordinates c1 = extremeCoordinates(p1,b1);
-	Coordinates c2 = extremeCoordinates(p2,b2);
-	Coordinates c3 = extremeCoordinates(p3,b3);
-	Coordinates c4 = extremeCoordinates(p4,b4);
+	int pos1,pos2,pos3,pos4 = 0;
+	Coordinates c1 = extremeCoordinates(p1,north);
+	Coordinates c2 = extremeCoordinates(p2,south);
+	Coordinates c3 = extremeCoordinates(p3,east);
+	Coordinates c4 = extremeCoordinates(p4,west);
 	Coordinates aux;
 
 	for(int i=1;i<n;i++){
 		
-		aux = extremeCoordinates(carts[i],b1);
-		if(b2(c1,aux)){ // if c1 the northest
+		aux = extremeCoordinates(carts[i],north);
+		if(north(c1,aux)){ // if c1 the northest
 			p1 = carts[i];
 			c1 = aux;
+			pos1 = i;
 		}
-		aux = extremeCoordinates(carts[i],b2);
-		if(b1(c2,aux)){ //compare the southest
+		aux = extremeCoordinates(carts[i],south);
+		if(south(c2,aux)){ //compare the southest
 			p2 = carts[i];
 			c2 = aux;
+			pos2 = i;
 		}
-		aux = extremeCoordinates(carts[i],b3);
-		if(b4(c3,aux)){ //compare the eastern
+		aux = extremeCoordinates(carts[i],east);
+		if(east(c3,aux)){ //compare the eastern
 			p3 = carts[i];
 			c3 = aux;
+			pos3 = i;
 		}
-		aux = extremeCoordinates(carts[i],b4);
-		if(b3(c4,aux)){ //compare the westest
+		aux = extremeCoordinates(carts[i],west);
+		if(west(c4,aux)){ //compare the westest
 			p4 = carts[i];
 			c4 = aux;
+			pos4 = i;
 		}
-		printf("The most extreme parcels are: \n");
-		printf("North: distrito: %s; concelho: %s; freguesia %s\n",p1.identification.distrito,p1.identification.concelho,p1.identification.freguesia);
-		printf("South: distrito: %s; concelho: %s; freguesia %s\n",p2.identification.distrito,p2.identification.concelho,p2.identification.freguesia);
-		printf("East: distrito: %s; concelho: %s; freguesia %s\n",p3.identification.distrito,p1.identification.concelho,p3.identification.freguesia);
-		printf("West: distrito: %s; concelho: %s; freguesia %s\n",p4.identification.distrito,p4.identification.concelho,p4.identification.freguesia);
+		showParcel(pos1, p1, 'N');
+		showParcel(pos2, p2, 'E');
+		showParcel(pos3, p3, 'S');
+		showParcel(pos4, p4, 'W');
+
 	}
 }
 
