@@ -29,7 +29,6 @@ COMENTÃRIO
 */
 
 #include "Cartography.h"
-
 /* STRING -------------------------------------- */
 
 static void showStringVector(StringVector sv, int n) {
@@ -234,11 +233,7 @@ bool insideRing(Coordinates c, Ring r)
 	return oddNodes;
 }
 
-bool adjacentRings(Ring a, Ring b)
-{
-////// FAZER
-	return false;
-}
+
 
 
 /* PARCEL -------------------------------------- */
@@ -276,11 +271,7 @@ bool insideParcel(Coordinates c, Parcel p)
 	return false;
 }
 
-bool adjacentParcels(Parcel a, Parcel b)
-{
-	////// FAZER
-		return false;
-}
+
 
 
 /* CARTOGRAPHY -------------------------------------- */
@@ -552,7 +543,7 @@ static void commandResume(int pos, Cartography cartography, int n)
 	{
 		for (int i = 0; i < p.nHoles; i++)
 		{
-		printf("%4s %d ","", p.holes[i].nVertexes);
+		printf("%s %d ","", p.holes[i].nVertexes);
 		showRectangle(p.holes[i].boundingBox);
 		printf("\n");
 		}
@@ -561,7 +552,24 @@ static void commandResume(int pos, Cartography cartography, int n)
 
 static void commandTravel(double lat, double lon, int pos, Cartography cartography, int n)
 {
-
+	if(!checkPos(pos,n)){
+		return;
+	}
+	Coordinates c1 = {lat,lon};
+	Parcel p = cartography[pos];
+	int len = p.edge.nVertexes;
+	Coordinates *cs = p.edge.vertexes;
+	double res = haversine(c1,cs[0]);
+	double aux;
+	
+	for (int i = 1; i < len; i++)
+	{
+		aux = haversine(c1,cs[i]);
+		if(aux<res){
+			res = aux;
+		}
+	}
+	printf("%f\n",res);	
 }
 
 static void commandHowMany(int pos, Cartography cartography, int n)
@@ -706,10 +714,99 @@ static void commandParcel(double lat, double lon, Cartography cartography, int n
 	
 }
 
+static bool vertexInRing(Coordinates c1, Ring r){
+	int nOuters = r.nVertexes;
+	Coordinates *outers = r.vertexes;
+	int i=0;
+	while (i<nOuters)
+	{
+		if(outers[i].lat==c1.lat&&outers[i].lon==c1.lon){
+			return true;
+		}
+		i++;
+	}
+	return false;	
+}
+bool adjacentRings(Ring a, Ring b)
+{
+	int n = a.nVertexes;
+	Coordinates *verts = a.vertexes;
+	for (int i = 0; i < n; i++)
+	{
+		if(vertexInRing(verts[i],b)){
+			return true;
+		}
+	}
+	return false;
+}
 
+bool adjacentParcels(Parcel a, Parcel b)
+{
+		if (adjacentRings(a.edge,b.edge))
+		{
+			return true;
+		}
+
+		int nHoles = a.nHoles;
+		Ring *aHoles = a.holes;
+
+		int bnHoles = b.nHoles;
+		Ring *bHoles = b.holes;
+
+		if(nHoles==0 || bnHoles==0){
+			return false;
+		}
+		for (int i = 0; i < nHoles; i++)
+		{
+			for (int j = 0; j < bnHoles; j++)
+			{
+				if(adjacentRings(aHoles[i],bHoles[j])){
+					return true;
+				}
+			}
+		}
+		return false;
+}
+static int numbers_strcmp(const void *a, const void *b){
+	return ( *(int*)a - *(int*)b );
+}
 static void CommandAdjecent(int pos, Cartography cartography, int n)
 {
+	int ids[10];
+	int nps = 0;
+	if(!checkPos(pos,n)){
+		return;
+	}
+	Parcel p = cartography[pos];
 
+	int nOuters = p.edge.nVertexes;
+	Coordinates *outers = p.edge.vertexes;
+	int j = pos+1;
+	int k = pos-1;
+	while (j<n)
+	{
+		if(adjacentParcels(p,cartography[j])){
+			ids[nps++]=j;
+		}
+		if(k>=0&&adjacentParcels(p,cartography[k])){
+			ids[nps++]= k;
+		}
+		j++;
+		k--;
+	}
+	if(nps==0){
+		printf("NAO HA ADJACENCIAS\n");
+		return;
+	}
+	qsort(ids,nps,sizeof(int),numbers_strcmp);
+	int haha;
+	for (int i = 0; i < nps; i++)
+	{
+		haha = ids[i];
+		showIdentification(haha,cartography[haha].identification,3);
+		printf("\n");
+	}
+	
 }
 
 
