@@ -9,7 +9,7 @@
 
 #include <assert.h>
 #include <malloc.h>
-
+/* 
 static void internalTests(bool show)
 {
 	if( show ) {
@@ -40,7 +40,7 @@ static void showMemory(bool show)
 		printf("heap memory = %ldMB\n", heapMemory/1024/1024);
 	#endif
 	}
-}
+} */
 /* 
 int main(void)
 {
@@ -52,6 +52,10 @@ int main(void)
 	return 0;
 }
  */
+
+static Cartography cartography;	// variÃ¡vel gigante
+static int nCartography = 0;
+
 // Nova Main de LAP
 int main(void)
 {
