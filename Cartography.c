@@ -428,65 +428,78 @@ static bool easthern(Coordinates c1,Coordinates c2){
 static bool westest(Coordinates c1,Coordinates c2){
 	return !easthern(c1,c2);
 }
-
-static Coordinates extremeCoordinates(Parcel p1, BoolFun b){
+/** given a parcel, it returns the coordinates of 
+ * the northest, southest, eastern and western edges in array given as an argument  */
+static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2, BoolFun b3, BoolFun b4, Coordinates res []){
 	Ring r = p1.edge;
-	Coordinates c1 = r.vertexes[0];
-	int n=r.nVertexes;
+	Coordinates no = r.vertexes[0];
+	Coordinates s,e,w;
+	s=e=w=no;
+	int len=r.nVertexes;
 	
-	 for (int i = 1; i < n; i++)
+	 for (int i = 1; i < len; i++)
 	{
-		 if(b(r.vertexes[i],c1)){
-			c1 = r.vertexes[i];
+		if(b1(r.vertexes[i],no)){
+			no = r.vertexes[i];
+		}
+		if(b2(r.vertexes[i],s)){
+			s = r.vertexes[i];
 		} 
+		if(b3(r.vertexes[i],e)){
+			e = r.vertexes[i];
+		} 
+		if(b4(r.vertexes[i],w)){
+			no = r.vertexes[i];
+		}  
 	}
-	return c1;
-	
+	res[0]=no;
+	res[1]=s;
+	res[2]=e;
+	res[3]=w;	
 }
 
 // bol: north south east west
 
 // bol: north south east west
-void extremeParcel(Cartography carts, int n, BoolFun north, BoolFun south,BoolFun east, BoolFun west ){
+void extremeParcel(Cartography carts, int len, BoolFun north, BoolFun south,BoolFun east, BoolFun west ){
 	Parcel p1, p2, p3, p4;
 	p1 = p2 = p3 = p4 = carts[0];
 	int pos1,pos2,pos3,pos4 = 0;
-	Coordinates c1 = extremeCoordinates(p1,north);
+	Coordinates cs [4];
+	extremeCoordinates(p1,north, south, east, west, cs);
+	Coordinates n = cs[0];
+	Coordinates s = cs[1];
+	Coordinates e = cs[2];
+	Coordinates w = cs[3];
 
-	Coordinates c2 = extremeCoordinates(p2,south);
-
-	Coordinates c3 = extremeCoordinates(p3,east);
-
-	Coordinates c4 = extremeCoordinates(p4,west);
 	Coordinates aux;
-	for(int i=1;i<n;i++)
+	for(int i=1;i<len;i++)
 	{
-		
-		aux = extremeCoordinates(carts[i],north);
-		if(north(aux,c1)){ // if c1 the northest
+		extremeCoordinates(carts[i],north, south, east, west, cs);
+		aux = cs[0];
+		if(north(aux,n)){ // if c1 the northest
 			p1 = carts[i];
-			c1 = aux;
+			n = aux;
 			pos1 = i;
 		}
-		aux = extremeCoordinates(carts[i],south);
-		if(south(aux,c2)){ //compare the southest
+		aux = cs[1];
+		if(south(aux,s)){ //compare the southest
 			p2 = carts[i];
-			c2 = aux;
+			s = aux;
 			pos2 = i;
 		}
-		aux = extremeCoordinates(carts[i],east);
-		if(east(aux,c3)){ //compare the eastern
+		aux = cs[2];
+		if(east(aux,e)){ //compare the eastern
 			p3 = carts[i];
-			c3 = aux;
+			e = aux;
 			pos3 = i;
 		}
-		aux = extremeCoordinates(carts[i],west);
-		if(west(aux,c4)){ //compare the westest
+		aux = cs[3];
+		if(west(aux,w)){ //compare the westest
 			p4 = carts[i];
-			c4 = aux;
+			w = aux;
 			pos4 = i;
 		}
-
 	}	
 	
 		showParcel(pos1, p1, -'N');
