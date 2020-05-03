@@ -55,7 +55,6 @@ typedef struct {	// Retangulo
 
 Rectangle rect(Coordinates tl, Coordinates br);
 bool insideRectangle(Coordinates c, Rectangle r);
-bool rectangleIntersect(Rectangle a, Rectangle b);
 
 
 
@@ -78,7 +77,7 @@ typedef struct {	// Anel - um caminho linear fechado que nÃ£o se auto-intersec
 
 bool insideRing(Coordinates c, Ring r);
 bool adjacentRings(Ring a, Ring b);
-typedef bool BoolFun(Coordinates,Coordinates);
+
 
 
 /* PARCEL -------------------------------------- */
@@ -114,7 +113,7 @@ typedef Parcel *Cartography;	// Mapa - uma coleÃ§Ã£o de parcelas
 typedef Parcel Cartography[MAX_PARCELS];	// Mapa - uma coleÃ§Ã£o de parcelas
 #endif
 
-int loadCartography(String fileName, Cartography cartography);
+int loadCartography(String fileName, Cartography *cartography);
 void showCartography(Cartography cartography, int n);
 
 
