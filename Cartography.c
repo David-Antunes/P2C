@@ -767,38 +767,34 @@ bool adjacentParcels(Parcel a, Parcel b)
 		}
 		return false;
 }
+
 static int numbers_strcmp(const void *a, const void *b){
 	return ( *(int*)a - *(int*)b );
 }
+
 static void CommandAdjecent(int pos, Cartography cartography, int n)
 {
-	int ids[10];
-	int nps = 0;
+	
 	if(!checkPos(pos,n)){
 		return;
 	}
+	int ids[10];
+	int nps = 0;
 	Parcel p = cartography[pos];
 
-	int nOuters = p.edge.nVertexes;
-	Coordinates *outers = p.edge.vertexes;
-	int j = pos+1;
-	int k = pos-1;
+	int j = 0;
+	
 	while (j<n)
 	{
-		if(adjacentParcels(p,cartography[j])){
+		if(j!=pos && adjacentParcels(p,cartography[j])){
 			ids[nps++]=j;
 		}
-		if(k>=0&&adjacentParcels(p,cartography[k])){
-			ids[nps++]= k;
-		}
 		j++;
-		k--;
 	}
 	if(nps==0){
 		printf("NAO HA ADJACENCIAS\n");
 		return;
 	}
-	qsort(ids,nps,sizeof(int),numbers_strcmp);
 	int haha;
 	for (int i = 0; i < nps; i++)
 	{
@@ -806,14 +802,80 @@ static void CommandAdjecent(int pos, Cartography cartography, int n)
 		showIdentification(haha,cartography[haha].identification,3);
 		printf("\n");
 	}
-	
 }
 
+
+
+static int bfs(Cartography carts,int n, int src, int dest){
+	int visited [n];
+	int dist[n];
+	int queue[n];
+	int int_max = 2147483647;
+	memset(visited,0,sizeof(int)*n);
+	memset(dist,0,sizeof(int)*n);
+	memset(queue,-1,sizeof(int)*n);
+
+	visited[src] = 1;
+	dist[src]=0; //val
+	queue[0]=src;
+	int elems=1;
+	int pop=0;
+	int current=src;
+	int sol[10];
+	int so=0;
+	while (current!=-1&&current<n&&elems<n)
+	{	
+		current = queue[pop++];
+		if(current>=n||current<0){
+			break;
+		}
+		for (int i = 0; i < n; i++)
+		{
+			if(current != i && adjacentParcels(carts[current],carts[i])){
+				if(visited[i]==0){
+					if(i!=dest){
+						queue[elems++]=i;
+						visited[i]=1;
+						dist[i]=dist[current]+1;
+					}else{
+						sol[so++]=dist[current]+1;
+					}
+				}
+			}
+		}
+	}
+	int res = sol[0];
+	for (int i = 1; i < so; i++)
+	{
+		if(res>sol[i]){
+			res = sol[i];
+		}
+	}
+	return res;
+}
 
 static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 {
-
+	if(!checkPos(pos1,n)||!checkPos(pos2,n)){
+		return;
+	}
+	int res = 0;
+	if(pos1==pos2){
+		res = 0;
+	}else if (adjacentParcels(cartography[pos1],cartography[pos2]))
+	{
+		res = 1;
+	}else{
+		res = bfs(cartography,n,pos1,pos2);
+	}
+	if(res==0){
+		printf("NAO HA CAMINHO\n");
+	}else{
+		printf("%d\n",res);
+	}
 }
+
+
 
 static void commandPartition(double distance, Cartography cartography, int n)
 {
