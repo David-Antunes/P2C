@@ -59,7 +59,6 @@ static int nCartography = 0;
 // Nova Main de LAP
 int main(void)
 {
-
 	nCartography = loadCartography("map.txt", &cartography);
 	showCartography(cartography, nCartography);
 	interpreter(cartography, nCartography);
