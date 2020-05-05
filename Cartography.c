@@ -784,7 +784,7 @@ static void CommandAdjecent(int pos, Cartography cartography, int n)
 	{
 		return;
 	}
-	int ids[10];
+	int ids[n];
 	int nps = 0;
 	Parcel p = cartography[pos];
 
@@ -818,23 +818,16 @@ static int bfs(Cartography carts, int n, int src, int dest)
 	int dist[n];
 	int queue[n];
 	int int_max = 2147483647;
-	memset(visited, 0, sizeof(int) * n);
-	memset(dist, 0, sizeof(int) * n);
+	memset(dist, -1, sizeof(int) * n);
 	memset(queue, -1, sizeof(int) * n);
 
-	visited[src] = 1;
 	dist[src] = 0; //val
 	queue[0] = src;
 	int elems = 1;
 	int pop = 0;
 	int current = src;
 	int sol[10];
-	for (int i = 0; i < 10; i++)
-	{
-		sol[i] = +2147483647;
-	}
-
-	int so = 0;
+	
 	while (current != -1 && current < n && elems < n)
 	{
 		current = queue[pop++];
@@ -846,7 +839,7 @@ static int bfs(Cartography carts, int n, int src, int dest)
 		{
 			if (current != i && adjacentParcels(carts[current], carts[i]))
 			{
-				if (visited[i] == 0)
+				if (dist[i]== -1)
 				{
 					if (i != dest)
 					{
@@ -856,25 +849,13 @@ static int bfs(Cartography carts, int n, int src, int dest)
 					}
 					else
 					{
-						sol[so++] = dist[current] + 1;
+						return dist[current] + 1;
 					}
 				}
 			}
 		}
 	}
-	if (so == 0)
-	{
-		return 0;
-	}
-	int res = sol[0];
-	for (int i = 1; i < so; i++)
-	{
-		if (res > sol[i])
-		{
-			res = sol[i];
-		}
-	}
-	return res;
+	return 0;
 }
 
 static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
