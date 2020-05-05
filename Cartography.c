@@ -970,7 +970,7 @@ static void commandPartition(double distance, Cartography cartography, int n)
 	{
 		printf("%d ",result[i]);
 	} 
-	
+	printf("\n");
 	for (int i = conts; i < conts+gg; i++)
 	{
 		printf("%d ",result[i]);
