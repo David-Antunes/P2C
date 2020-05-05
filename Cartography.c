@@ -1240,6 +1240,10 @@ void interpreter(Cartography cartography, int n)
 			case 'T': case 't':	// particao
 				commandPartition(arg1, cartography, n);
 				break;
+
+			case 'I': case 'i':	// particao
+			altPartition(arg1, cartography, n);
+			break;
 			
 			case 'H': case 'h':	// particao
 				commandCountyHoles(cartography, n);
