@@ -984,6 +984,192 @@ static void commandPartition(double distance, Cartography cartography, int n)
 }
 
 
+static double calcDist(Coordinates source, Coordinates destiny)
+{
+	return sqrt(pow(source.lat - destiny.lat, 2.0) + pow(source.lon - destiny.lon,2));
+}
+
+static Coordinates getCenter(Rectangle rect)
+{
+	return coord(rect.bottomRight.lat-((rect.bottomRight.lat - rect.topLeft.lat)/2), rect.bottomRight.lon-((rect.bottomRight.lon - rect.topLeft.lon)/2));
+}
+
+static void altFrontier(int pos1, int pos2, Cartography cartography, int n)
+{
+	if(!checkPos(pos1,n)||!checkPos(pos2,n)){
+		return;
+	}
+
+	int res = 0;
+	if(pos1==pos2){
+		res = 0;
+	}else if (adjacentParcels(cartography[pos1],cartography[pos2]))
+	{
+		res = 1;
+	}else
+	{
+
+		bool found = true;
+		Coordinates src = getCenter(cartography[pos1].edge.boundingBox);
+		Coordinates dest = getCenter(cartography[pos2].edge.boundingBox);
+		Parcel p = cartography[pos1];
+		int pos = pos1;
+
+	
+		double distance = haversine(src,dest);
+		while(found)
+		{
+			found = false;
+			Parcel nextParcel;
+			int auxpos;
+			for(int i = 0; i < n; i++)
+			{
+				if(i != pos && adjacentParcels(p, cartography[i]))
+				{
+					if(i == pos2){
+						res++;
+						found = false;
+						break;
+					}
+					else
+					{
+						if(distance > haversine(getCenter(cartography[i].edge.boundingBox),dest))
+						{
+							distance = haversine(getCenter(cartography[i].edge.boundingBox),dest);
+							nextParcel = cartography[i];
+							found = true;
+							auxpos = i;
+						}
+					}
+				}
+			}
+			if(found)
+			{
+				res++;
+				p = nextParcel;
+				pos = auxpos;
+				printf("%s\n", p.identification.freguesia);
+			}
+		}
+	printf("%f\n", haversine(getCenter(cartography[162].edge.boundingBox),dest));
+	printf("%f\n", haversine(getCenter(cartography[163].edge.boundingBox),dest));
+	}
+
+	if(res==0){
+		printf("NAO HA CAMINHO\n");
+	}else{
+		printf("%d\n",res);
+	}
+}
+static int getNext(char usedParcels[], int n, int pos)
+{
+	for(int i = pos; i < n; i++)
+	{
+		if(usedParcels[i] == 0)
+			return i;
+	}
+	return -1;
+}
+
+static bool hasParcel(int parcels[], int val, int n)
+{
+	for(int i = 0; i < n; i++)
+	{
+		if(parcels[i] == val)
+			return true;
+	}
+	return false;
+}
+
+
+static void altPartition(double distance, Cartography cartography, int n)
+{
+	
+	int parcels[n][n];
+	char usedParcels[n];
+	int numberOfParcels[n];
+
+	for(int i = 0; i < n; i++)
+	{
+		usedParcels[i] = 0;
+		numberOfParcels[i]= 0;
+	}
+
+	Parcel p = cartography[0];
+	int i = 0;
+	parcels[0][0] = i;
+	numberOfParcels[0] = 1;
+	usedParcels[0] = 1;
+	int currentPartion = 0;
+	while(getNext(usedParcels, n, 0) != -1)
+	{
+//		printf("%d\n", getNext(usedParcels, n, 0));
+		for(int j = 0; j < n; j++)
+		{
+			if(distance > haversine(p.edge.vertexes[0], cartography[j].edge.vertexes[0]) && i != j)
+				if(usedParcels[j] == 0)
+				{
+					printf("%f\n", haversine(p.edge.vertexes[0], cartography[j].edge.vertexes[0]));
+					usedParcels[j] = 1;
+					parcels[currentPartion][numberOfParcels[currentPartion]] = j;
+					numberOfParcels[currentPartion]++;
+				}
+		}
+		int i = getNext(usedParcels, n, i);
+		if(i != -1)
+		{
+			currentPartion++;
+			parcels[currentPartion][0] = i;
+			usedParcels[i] = 1;
+			numberOfParcels[currentPartion] = 1;
+		}
+//		printf("%d\n", getNext(usedParcels, n, 0));
+	}
+
+	int start = 0;
+	int end = 0;
+	
+	i = 0;
+			printf("%d\n", currentPartion);
+	while(i < currentPartion)
+	{
+		bool breakpart = false;
+		for(int k = 0; k < numberOfParcels[i]; k++)
+		{
+			for(int j = start + 1; j < numberOfParcels[i] && !breakpart; j++)
+			{
+				if((parcels[i][j] - end) == 1)
+				{
+					end = parcels[i][j];
+					k++;
+				}
+				else
+				{
+					breakpart = true;
+					if(start == end)
+					{	
+						printf("%d ", start);
+					}
+					else 
+					{
+						printf("%d-%d ", start, end);
+						start = end;
+					}
+				}
+			}
+			printf("%d\n", k);
+			if(k == numberOfParcels[i])
+				printf("\n");
+		}
+	i++;
+	}
+
+
+	printf("%f\n", haversine(cartography[0].edge.vertexes[0], cartography[28].edge.vertexes[0]));
+}
+
+
+
 static void commandCountyHoles(Cartography cartography, int n)
 {
 	for(int i = 0; i < n; i++){
