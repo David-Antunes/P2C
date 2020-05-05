@@ -657,6 +657,7 @@ static void commandCounties(Cartography cartography, int n)
 	showStringVector(counties, ncounties);
 }
 
+
 static void commandDistricts(Cartography cartography, int n)
 {
 	StringVector districts;
@@ -674,7 +675,7 @@ static void commandDistricts(Cartography cartography, int n)
 	}
 	ndistricts++;
 	qsort(districts, ndistricts, sizeof(String), v_strcmp);
-	showStringVector(districts, ndistricts);
+	showStringVector(districts, 5);
 }
 
 static bool hasCoords(double lat, double lon, Ring r)
@@ -774,7 +775,6 @@ static int numbers_strcmp(const void *a, const void *b){
 
 static void CommandAdjecent(int pos, Cartography cartography, int n)
 {
-	
 	if(!checkPos(pos,n)){
 		return;
 	}
@@ -822,6 +822,11 @@ static int bfs(Cartography carts,int n, int src, int dest){
 	int pop=0;
 	int current=src;
 	int sol[10];
+	for (int i = 0; i < 10; i++)
+	{
+		sol[i]=+2147483647;
+	}
+	
 	int so=0;
 	while (current!=-1&&current<n&&elems<n)
 	{	
@@ -843,6 +848,9 @@ static int bfs(Cartography carts,int n, int src, int dest){
 				}
 			}
 		}
+	}
+	if(so==0){
+		return 0;
 	}
 	int res = sol[0];
 	for (int i = 1; i < so; i++)
@@ -875,12 +883,106 @@ static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 	}
 }
 
+typedef struct Node 
+{
+	int data;
+	struct Node *next;
+} Node, *List;
 
+static List newNode(int val, List next)
+{
+    List n = malloc(sizeof(Node));
+    if( n == NULL )
+        return NULL;
+    n->data = val;
+    n->next = next;
+    return n;
+}
+List listPutAtEnd(List l, int val)
+{
+    if( l == NULL )
+        return newNode(val, NULL);
+    else {
+        List p;
+        for( p = l ; p->next != NULL ; p = p->next ); // Stop at the last node
+        p->next = newNode(val, NULL);  // Assign to the next of the last node
+        return l;
+    }
+}
 
 static void commandPartition(double distance, Cartography cartography, int n)
 {
+	
+	int result [n];
+	int azores [n];
+	int madeira [n];
+	
+	int nAzores = 0;
+	int nMads = 0;
+	int conts=0;
+	int countFinal = 0;
+	double gg=0;
+	int pass = 1;
+	for (int i = 0; i < n; i++)
+	{
+			if( strcmp("VIANA-DO-CASTELO",cartography[i].identification.distrito)==0||strcmp("EVORA",cartography[i].identification.distrito)==0||strcmp("FARO",cartography[i].identification.distrito)==0){
+				result[conts++]=i;
+			}else if(strcmp("ARQUIPELAGO-DOS-ACORES",cartography[i].identification.distrito)==0){
+				azores[nAzores++]=i;
+			}else if (strcmp("ARQUIPELAGO-DA-MADEIRA",cartography[i].identification.distrito)==0)
+			{
+				madeira[nMads++]=i;
+			}
 
+			countFinal = conts;
+			for (int i = 0; i < nAzores; i++)
+			{
+				pass = 1;
+				for (int j = 0; j < conts && pass==1; j++)
+				{
+					if(distance>haversine(cartography[azores[i]].edge.vertexes[0],cartography[result[j]].edge.vertexes[0])){
+						pass=0;
+					}
+				}
+				if(pass==1&&conts>0){
+					result[countFinal++]=azores[i];
+				}
+			}
+			gg = countFinal-conts;
+			
+			for (int i = 0; i < nMads; i++)
+			{
+				pass = 1;
+				for (int j = 0; j < conts && pass==1; j++)
+				{
+					if(distance>haversine(cartography[madeira[i]].edge.vertexes[0],cartography[result[j]].edge.vertexes[0])){
+						pass=0;
+					}
+				}
+				if(pass==1&&conts>0){
+					result[countFinal++]=madeira[i];
+				}
+			}
+	}
+
+	
+	for (int i = 0; i < conts; i++)
+	{
+		printf("%d ",result[i]);
+	} 
+	
+	for (int i = conts; i < conts+gg; i++)
+	{
+		printf("%d ",result[i]);
+	}
+	printf("\n");
+	conts = conts+gg;
+	for (int i = conts; i < countFinal; i++)
+	{
+		printf("%d ",result[i]);
+	}
 }
+
 
 static void commandCountyHoles(Cartography cartography, int n)
 {
