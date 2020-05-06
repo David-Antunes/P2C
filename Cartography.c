@@ -855,6 +855,7 @@ static int bfs(Cartography carts, int n, int src, int dest)
 			}
 		}
 	}
+
 	return 0;
 }
 
@@ -918,7 +919,7 @@ List listPutAtEnd(List l, int val)
 
 static void commandPartition(double distance, Cartography cartography, int n)
 {
-	List resut[n];
+	List *result = (List *) malloc(sizeof(List)*10);
 	int resCounter = 0;
 	List subA = NULL;
 	int added[n];
@@ -950,8 +951,11 @@ static void commandPartition(double distance, Cartography cartography, int n)
 			}
 			if (subA != NULL)
 			{
-				resut[resCounter++] = subA;
+				result[resCounter++] = subA;
 				subA = NULL;
+				if(resCounter==10){
+					result = (List *) realloc(result,sizeof(List)*resCounter*2);
+				}
 			}
 		}
 		subA = NULL;
@@ -960,16 +964,16 @@ static void commandPartition(double distance, Cartography cartography, int n)
 
 	for (int k = 0; k < resCounter; k++)
 	{
-		subA = resut[k];
+		subA = result[k];
 		for (; subA != NULL; subA = subA->next)
 		{
 			printf("%d ", subA->data);
+			free(subA);
 		}
 		printf("\n");
 		printf("\n");
 	}
-
-	printf("\n");
+	free(result);
 }
 
 static double calcDist(Coordinates source, Coordinates destiny)
