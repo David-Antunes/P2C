@@ -816,7 +816,6 @@ static int bfs(Cartography carts,int n, int src, int dest){
 	int dist[n];
 	int queue[n];
 	int int_max = 2147483647;
-<<<<<<< Updated upstream
 	memset(dist, -1, sizeof(int) * n);
 	memset(queue, -1, sizeof(int) * n);
 
@@ -829,34 +828,12 @@ static int bfs(Cartography carts,int n, int src, int dest){
 	
 	while (current != -1 && current < n && elems < n)
 	{
-=======
-	memset(visited,0,sizeof(int)*n);
-	memset(dist,0,sizeof(int)*n);
-	memset(queue,-1,sizeof(int)*n);
-
-	visited[src] = 1;
-	dist[src]=0; //val
-	queue[0]=src;
-	int elems=1;
-	int pop=0;
-	int current=src;
-	int sol[10];
-	for (int i = 0; i < 10; i++)
-	{
-		sol[i]=+2147483647;
-	}
-	
-	int so=0;
-	while (current!=-1&&current<n&&elems<n)
-	{	
->>>>>>> Stashed changes
 		current = queue[pop++];
 		if(current>=n||current<0){
 			break;
 		}
 		for (int i = 0; i < n; i++)
 		{
-<<<<<<< Updated upstream
 			if (current != i && adjacentParcels(carts[current], carts[i]))
 			{
 				if (dist[i]== -1)
@@ -870,36 +847,12 @@ static int bfs(Cartography carts,int n, int src, int dest){
 					else
 					{
 						return dist[current] + 1;
-=======
-			if(current != i && adjacentParcels(carts[current],carts[i])){
-				if(visited[i]==0){
-					if(i!=dest){
-						queue[elems++]=i;
-						visited[i]=1;
-						dist[i]=dist[current]+1;
-					}else{
-						sol[so++]=dist[current]+1;
->>>>>>> Stashed changes
 					}
 				}
 			}
 		}
 	}
-<<<<<<< Updated upstream
 	return 0;
-=======
-	if(so==0){
-		return 0;
-	}
-	int res = sol[0];
-	for (int i = 1; i < so; i++)
-	{
-		if(res>sol[i]){
-			res = sol[i];
-		}
-	}
-	return res;
->>>>>>> Stashed changes
 }
 
 static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
