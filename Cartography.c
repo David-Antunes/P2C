@@ -961,17 +961,59 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		subA = NULL;
 	}
 
+	int start = 0;
+	int end = 0;
 
 	for (int k = 0; k < resCounter; k++)
 	{
 		subA = result[k];
+		int start = subA->data;
+		int end = subA->data;
 		for (; subA != NULL; subA = subA->next)
 		{
-			printf("%d ", subA->data);
-			free(subA);
+			if(subA->next != NULL)
+			{
+				if(subA->next->data - end == 1) 
+				{
+					end = subA->next->data;
+				}
+				else
+				{
+					if(start == end)
+					{
+						printf("%d ", start);
+						start = subA->next->data;
+						end = subA->next->data;
+					}				
+					else
+					{
+						printf("%d-%d ", start, end);
+						start = end;
+						start = subA->next->data;
+						end = subA->next->data;
+					}
+					
+				}
+				
+			}
+			else
+			{
+				if(start == end)
+					{
+						printf("%d ", start);
+					}				
+					else
+					{
+						printf("%d-%d ", start, end);
+						start = end;
+					}
+			}
+			
+			//printf("%d ", subA->data);
+			//free(subA);
 		}
 		printf("\n");
-		printf("\n");
+		free(subA);
 	}
 	free(result);
 }
