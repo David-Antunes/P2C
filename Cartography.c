@@ -916,6 +916,13 @@ List listPutAtEnd(List l, int val)
 		return l;
 	}
 }
+static void printSequence(int start, int end)
+{
+	if(start != end)
+		printf("%d-%d ", start, end);
+		
+	printf("%d ", start);
+}
 
 static void commandPartition(double distance, Cartography cartography, int n)
 {
@@ -951,10 +958,11 @@ static void commandPartition(double distance, Cartography cartography, int n)
 			}
 			if (subA != NULL)
 			{
-				result[resCounter++] = subA;
+				result[resCounter] = subA;
+				resCounter++;
 				subA = NULL;
 				if(resCounter==10){
-					result = (List *) realloc(result,sizeof(List)*resCounter*2);
+					*result = (List *) realloc(result,sizeof(List)*resCounter*2);
 				}
 			}
 		}
@@ -979,34 +987,15 @@ static void commandPartition(double distance, Cartography cartography, int n)
 				}
 				else
 				{
-					if(start == end)
-					{
-						printf("%d ", start);
-						start = subA->next->data;
-						end = subA->next->data;
-					}				
-					else
-					{
-						printf("%d-%d ", start, end);
-						start = end;
-						start = subA->next->data;
-						end = subA->next->data;
-					}
-					
+					printSequence(start,end);
+					start = subA->next->data;
+					end = subA->next->data;
 				}
 				
 			}
 			else
 			{
-				if(start == end)
-					{
-						printf("%d ", start);
-					}				
-					else
-					{
-						printf("%d-%d ", start, end);
-						start = end;
-					}
+				printSequence(start,end);
 			}
 			
 			//printf("%d ", subA->data);
@@ -1015,6 +1004,7 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		printf("\n");
 		free(subA);
 	}
+	printf("%d\n", result[0]->data);
 	free(result);
 }
 
@@ -1173,39 +1163,33 @@ static void altPartition(double distance, Cartography cartography, int n)
 	int start = 0;
 	int end = 0;
 	
-	int i = 0;
-	printf("partitions %d\n", currentPartion);
-	while(i < currentPartion)
+	for (int k = 0; k < currentPartion; k++)
 	{
-		bool breakpart = false;
-		for(int k = 0; k < numberOfParcels[i]; k++)
+		int start = parcels[k][0];
+		int end = parcels[k][0];
+		for (int j = 1; j <= numberOfParcels[k]; j++)
 		{
-			for(int j = start + 1; j < numberOfParcels[i] && !breakpart; j++)
+			if(j < numberOfParcels[k])
 			{
-				if((parcels[i][j] - end) == 1)
+				if(parcels[k][j] - end == 1) 
 				{
-					end = parcels[i][j];
-					k++;
+					end = parcels[k][j];
 				}
 				else
 				{
-					breakpart = true;
-					if(start == end)
-					{	
-						printf("%d ", start);
-					}
-					else 
-					{
-						printf("%d-%d ", start, end);
-						start = end;
-					}
+					printSequence(start,end);
+					start = parcels[k][j];
+					end = parcels[k][j];
 				}
+				
 			}
-			//printf("%d\n", k);
-			if(k == numberOfParcels[i])
-				printf("\n");
+			else
+			{
+				printSequence(start,end);
+			}
+			
 		}
-	i++;
+		printf("\n");
 	}
 /* 	int aux = 0;
 	printf("partitions %d\n", currentPartion);
