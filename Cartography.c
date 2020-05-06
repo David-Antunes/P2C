@@ -756,18 +756,16 @@ bool adjacentParcels(Parcel a, Parcel b)
 	int bnHoles = b.nHoles;
 	Ring *bHoles = b.holes;
 
-	if (nHoles == 0 || bnHoles == 0)
+	for (int i = 0; i < bnHoles; i++)
 	{
-		return false;
+		if(adjacentRings(a.edge,b.holes[i])){
+			return true;
+		}
 	}
 	for (int i = 0; i < nHoles; i++)
 	{
-		for (int j = 0; j < bnHoles; j++)
-		{
-			if (adjacentRings(aHoles[i], bHoles[j]))
-			{
-				return true;
-			}
+		if(adjacentRings(a.holes[i],b.edge)){
+			return true;
 		}
 	}
 	return false;
@@ -926,7 +924,7 @@ static void printSequence(int start, int end)
 
 static void commandPartition(double distance, Cartography cartography, int n)
 {
-	List *result = (List *) malloc(sizeof(List)*10);
+	List result [n];
 	int resCounter = 0;
 	List subA = NULL;
 	int added[n];
@@ -961,9 +959,6 @@ static void commandPartition(double distance, Cartography cartography, int n)
 				result[resCounter] = subA;
 				resCounter++;
 				subA = NULL;
-				if(resCounter==10){
-					*result = (List *) realloc(result,sizeof(List)*resCounter*2);
-				}
 			}
 		}
 		subA = NULL;
@@ -997,15 +992,10 @@ static void commandPartition(double distance, Cartography cartography, int n)
 			{
 				printSequence(start,end);
 			}
-			
-			//printf("%d ", subA->data);
-			//free(subA);
 		}
 		printf("\n");
 		free(subA);
 	}
-	printf("%d\n", result[0]->data);
-	free(result);
 }
 
 static double calcDist(Coordinates source, Coordinates destiny)
