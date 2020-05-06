@@ -916,6 +916,13 @@ List listPutAtEnd(List l, int val)
 		return l;
 	}
 }
+static void printSequence(int start, int end)
+{
+	if(start != end)
+		printf("%d-%d ", start, end);
+		
+	printf("%d ", start);
+}
 
 static void commandPartition(double distance, Cartography cartography, int n)
 {
@@ -951,28 +958,53 @@ static void commandPartition(double distance, Cartography cartography, int n)
 			}
 			if (subA != NULL)
 			{
-				result[resCounter++] = subA;
+				result[resCounter] = subA;
+				resCounter++;
 				subA = NULL;
 				if(resCounter==10){
-					result = (List *) realloc(result,sizeof(List)*resCounter*2);
+					*result = (List *) realloc(result,sizeof(List)*resCounter*2);
 				}
 			}
 		}
 		subA = NULL;
 	}
 
+	int start = 0;
+	int end = 0;
 
 	for (int k = 0; k < resCounter; k++)
 	{
 		subA = result[k];
+		int start = subA->data;
+		int end = subA->data;
 		for (; subA != NULL; subA = subA->next)
 		{
-			printf("%d ", subA->data);
-			free(subA);
+			if(subA->next != NULL)
+			{
+				if(subA->next->data - end == 1) 
+				{
+					end = subA->next->data;
+				}
+				else
+				{
+					printSequence(start,end);
+					start = subA->next->data;
+					end = subA->next->data;
+				}
+				
+			}
+			else
+			{
+				printSequence(start,end);
+			}
+			
+			//printf("%d ", subA->data);
+			//free(subA);
 		}
 		printf("\n");
-		printf("\n");
+		free(subA);
 	}
+	printf("%d\n", result[0]->data);
 	free(result);
 }
 
@@ -1082,87 +1114,95 @@ static bool hasParcel(int parcels[], int val, int n)
 
 static void altPartition(double distance, Cartography cartography, int n)
 {
-
+	
 	int parcels[n][n];
 	char usedParcels[n];
 	int numberOfParcels[n];
 
-	for (int i = 0; i < n; i++)
+	for(int i = 0; i < n; i++)
 	{
 		usedParcels[i] = 0;
-		numberOfParcels[i] = 0;
+		numberOfParcels[i]= 0;
 	}
 
 	Parcel p = cartography[0];
-	int i = 0;
-	parcels[0][0] = i;
+	int pos = 0;
+	parcels[0][0] = pos;
 	numberOfParcels[0] = 1;
 	usedParcels[0] = 1;
 	int currentPartion = 0;
-	while (getNext(usedParcels, n, 0) != -1)
+	while(getNext(usedParcels, n, 0) != -1)
 	{
-		//		printf("%d\n", getNext(usedParcels, n, 0));
-		for (int j = 0; j < n; j++)
+		//printf("%d\n", getNext(usedParcels, n, 0));
+		for(int j = 0; j < n; j++)
 		{
-			if (distance > haversine(p.edge.vertexes[0], cartography[j].edge.vertexes[0]) && i != j)
-				if (usedParcels[j] == 0)
+			if(distance > haversine(p.edge.vertexes[pos], cartography[j].edge.vertexes[0]) && pos != j)
+				if(usedParcels[j] == 0)
 				{
-					printf("%f\n", haversine(p.edge.vertexes[0], cartography[j].edge.vertexes[0]));
+					//printf("%s\n", cartography[j].identification.freguesia);
+					//printf("%f\n", haversine(p.edge.vertexes[0], cartography[j].edge.vertexes[0]));
 					usedParcels[j] = 1;
 					parcels[currentPartion][numberOfParcels[currentPartion]] = j;
 					numberOfParcels[currentPartion]++;
 				}
 		}
-		int i = getNext(usedParcels, n, i);
-		if (i != -1)
+		pos = getNext(usedParcels, n, pos);
+		if(pos != -1)
 		{
 			currentPartion++;
-			parcels[currentPartion][0] = i;
-			usedParcels[i] = 1;
+			//printf("%d\n", getNext(usedParcels, n, 0));
+			parcels[currentPartion][0] = pos;
+			usedParcels[pos] = 1;
 			numberOfParcels[currentPartion] = 1;
+			p = cartography[pos];
 		}
-		//		printf("%d\n", getNext(usedParcels, n, 0));
+		//printf("Froze here\n");
+		//printf("%d\n", getNext(usedParcels, n, 0));
 	}
 
 	int start = 0;
 	int end = 0;
-
-	i = 0;
-	printf("%d\n", currentPartion);
-	while (i < currentPartion)
+	
+	for (int k = 0; k < currentPartion; k++)
 	{
-		bool breakpart = false;
-		for (int k = 0; k < numberOfParcels[i]; k++)
+		int start = parcels[k][0];
+		int end = parcels[k][0];
+		for (int j = 1; j <= numberOfParcels[k]; j++)
 		{
-			for (int j = start + 1; j < numberOfParcels[i] && !breakpart; j++)
+			if(j < numberOfParcels[k])
 			{
-				if ((parcels[i][j] - end) == 1)
+				if(parcels[k][j] - end == 1) 
 				{
-					end = parcels[i][j];
-					k++;
+					end = parcels[k][j];
 				}
 				else
 				{
-					breakpart = true;
-					if (start == end)
-					{
-						printf("%d ", start);
-					}
-					else
-					{
-						printf("%d-%d ", start, end);
-						start = end;
-					}
+					printSequence(start,end);
+					start = parcels[k][j];
+					end = parcels[k][j];
 				}
+				
 			}
-			printf("%d\n", k);
-			if (k == numberOfParcels[i])
-				printf("\n");
+			else
+			{
+				printSequence(start,end);
+			}
+			
 		}
-		i++;
+		printf("\n");
 	}
-
-	printf("%f\n", haversine(cartography[0].edge.vertexes[0], cartography[28].edge.vertexes[0]));
+/* 	int aux = 0;
+	printf("partitions %d\n", currentPartion);
+	while(aux <= currentPartion)
+	{
+	int num = 0;
+	while(num < numberOfParcels[aux])
+	{
+		printf("%d\n", parcels[aux][num]);
+		num++;
+	}
+	aux++;
+	} */
 }
 
 static void commandCountyHoles(Cartography cartography, int n)
