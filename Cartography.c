@@ -101,9 +101,12 @@ static void showValue(int value)
 static bool sameIdentification(Identification id1, Identification id2, int z)
 {
 	if (z == 3)
-		return strcmp(id1.freguesia, id2.freguesia) == 0 && strcmp(id1.concelho, id2.concelho) == 0 && strcmp(id1.distrito, id2.distrito) == 0;
+		return strcmp(id1.freguesia, id2.freguesia) == 0 
+		&& strcmp(id1.concelho, id2.concelho) == 0 
+		&& strcmp(id1.distrito, id2.distrito) == 0;
 	else if (z == 2)
-		return strcmp(id1.concelho, id2.concelho) == 0 && strcmp(id1.distrito, id2.distrito) == 0;
+		return strcmp(id1.concelho, id2.concelho) == 0 
+		&& strcmp(id1.distrito, id2.distrito) == 0;
 	else
 		return strcmp(id1.distrito, id2.distrito) == 0;
 }
@@ -433,7 +436,8 @@ static bool westest(Coordinates c1, Coordinates c2)
 }
 /** given a parcel, it returns the coordinates of 
  * the northest, southest, eastern and western edges in array given as an argument  */
-static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2, BoolFun b3, BoolFun b4, Coordinates res[])
+static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2, 
+								BoolFun b3, BoolFun b4, Coordinates res[])
 {
 	Ring r = p1.edge;
 	Coordinates no = r.vertexes[0];
@@ -469,7 +473,8 @@ static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2, BoolFun b3, Bo
 // bol: north south east west
 
 // bol: north south east west
-void extremeParcel(Cartography carts, int len, BoolFun north, BoolFun south, BoolFun east, BoolFun west)
+void extremeParcel(Cartography carts, int len, BoolFun north, 
+					BoolFun south, BoolFun east, BoolFun west)
 {
 	Parcel p1, p2, p3, p4;
 	p1 = p2 = p3 = p4 = carts[0];
@@ -614,7 +619,8 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 		if (sameIdentification(cartography[i].identification, cartography[pos].identification, 2))
 		{
 			counties++;
-			if (sameIdentification(cartography[i].identification, cartography[pos].identification, 1))
+			if (sameIdentification(cartography[i].identification, 
+				cartography[pos].identification, 1))
 			{
 				districts++;
 			}
@@ -943,7 +949,8 @@ static void commandPartition(double distance, Cartography cartography, int n)
 			{
 				if (added[z] == 0 && z != k)
 				{
-					if (distance > haversine(cartography[k].edge.vertexes[0], cartography[z].edge.vertexes[0]))
+					if (distance > haversine(cartography[k].edge.vertexes[0], 
+											cartography[z].edge.vertexes[0]))
 					{
 						subA = listPutAtEnd(subA, z);
 						added[z] = 1;
@@ -992,215 +999,6 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		}
 		printf("\n");
 		free(subA);
-	}
-}
-
-static double calcDist(Coordinates source, Coordinates destiny)
-{
-	return sqrt(pow(source.lat - destiny.lat, 2.0) + pow(source.lon - destiny.lon, 2));
-}
-
-static Coordinates getCenter(Rectangle rect)
-{
-	return coord(rect.bottomRight.lat - ((rect.bottomRight.lat - rect.topLeft.lat) / 2), rect.bottomRight.lon - ((rect.bottomRight.lon - rect.topLeft.lon) / 2));
-}
-
-static void altFrontier(int pos1, int pos2, Cartography cartography, int n)
-{
-	if (!checkPos(pos1, n) || !checkPos(pos2, n))
-	{
-		return;
-	}
-
-	int res = 0;
-	if (pos1 == pos2)
-	{
-		res = 0;
-	}
-	else if (adjacentParcels(cartography[pos1], cartography[pos2]))
-	{
-		res = 1;
-	}
-	else
-	{
-
-		bool found = true;
-		Coordinates src = getCenter(cartography[pos1].edge.boundingBox);
-		Coordinates dest = getCenter(cartography[pos2].edge.boundingBox);
-		Parcel p = cartography[pos1];
-		int pos = pos1;
-
-		double distance = haversine(src, dest);
-		while (found)
-		{
-			found = false;
-			Parcel nextParcel;
-			int auxpos;
-			for (int i = 0; i < n; i++)
-			{
-				if (i != pos && adjacentParcels(p, cartography[i]))
-				{
-					if (i == pos2)
-					{
-						res++;
-						found = false;
-						break;
-					}
-					else
-					{
-						if (distance > haversine(getCenter(cartography[i].edge.boundingBox), dest))
-						{
-							distance = haversine(getCenter(cartography[i].edge.boundingBox), dest);
-							nextParcel = cartography[i];
-							found = true;
-							auxpos = i;
-						}
-					}
-				}
-			}
-			if (found)
-			{
-				res++;
-				p = nextParcel;
-				pos = auxpos;
-				printf("%s\n", p.identification.freguesia);
-			}
-		}
-		printf("%f\n", haversine(getCenter(cartography[162].edge.boundingBox), dest));
-		printf("%f\n", haversine(getCenter(cartography[163].edge.boundingBox), dest));
-	}
-
-	if (res == 0)
-	{
-		printf("NAO HA CAMINHO\n");
-	}
-	else
-	{
-		printf("%d\n", res);
-	}
-}
-static int getNext(char usedParcels[], int n, int pos)
-{
-	for (int i = pos; i < n; i++)
-	{
-		if (usedParcels[i] == 0)
-			return i;
-	}
-	return -1;
-}
-
-static bool hasParcel(int parcels[], int val, int n)
-{
-	for (int i = 0; i < n; i++)
-	{
-		if (parcels[i] == val)
-			return true;
-	}
-	return false;
-}
-
-static void altPartition(double distance, Cartography cartography, int n)
-{
-	
-	int parcels[n][n];
-	char usedParcels[n];
-	int numberOfParcels[n];
-
-	for(int i = 0; i < n; i++)
-	{
-		usedParcels[i] = 0;
-		numberOfParcels[i]= 0;
-	}
-
-	Parcel p = cartography[0];
-	int pos = 0;
-	parcels[0][0] = pos;
-	numberOfParcels[0] = 1;
-	usedParcels[0] = 1;
-	int currentPartion = 0;
-	while(getNext(usedParcels, n, 0) != -1)
-	{
-		//printf("%d\n", getNext(usedParcels, n, 0));
-		for(int j = 0; j < n; j++)
-		{
-			if(distance > haversine(p.edge.vertexes[pos], cartography[j].edge.vertexes[0]) && pos != j)
-				if(usedParcels[j] == 0)
-				{
-					//printf("%s\n", cartography[j].identification.freguesia);
-					//printf("%f\n", haversine(p.edge.vertexes[0], cartography[j].edge.vertexes[0]));
-					usedParcels[j] = 1;
-					parcels[currentPartion][numberOfParcels[currentPartion]] = j;
-					numberOfParcels[currentPartion]++;
-				}
-		}
-		pos = getNext(usedParcels, n, pos);
-		if(pos != -1)
-		{
-			currentPartion++;
-			//printf("%d\n", getNext(usedParcels, n, 0));
-			parcels[currentPartion][0] = pos;
-			usedParcels[pos] = 1;
-			numberOfParcels[currentPartion] = 1;
-			p = cartography[pos];
-		}
-		//printf("Froze here\n");
-		//printf("%d\n", getNext(usedParcels, n, 0));
-	}
-
-	int start = 0;
-	int end = 0;
-	
-	for (int k = 0; k < currentPartion; k++)
-	{
-		int start = parcels[k][0];
-		int end = parcels[k][0];
-		for (int j = 1; j <= numberOfParcels[k]; j++)
-		{
-			if(j < numberOfParcels[k])
-			{
-				if(parcels[k][j] - end == 1) 
-				{
-					end = parcels[k][j];
-				}
-				else
-				{
-					printSequence(start,end);
-					start = parcels[k][j];
-					end = parcels[k][j];
-				}
-				
-			}
-			else
-			{
-				printSequence(start,end);
-			}
-			
-		}
-		printf("\n");
-	}
-/* 	int aux = 0;
-	printf("partitions %d\n", currentPartion);
-	while(aux <= currentPartion)
-	{
-	int num = 0;
-	while(num < numberOfParcels[aux])
-	{
-		printf("%d\n", parcels[aux][num]);
-		num++;
-	}
-	aux++;
-	} */
-}
-
-static void commandCountyHoles(Cartography cartography, int n)
-{
-	for (int i = 0; i < n; i++)
-	{
-		if (cartography[i].nHoles != 0)
-		{
-			showIdentification(i, cartography[i].identification, 3);
-			printf("\n");
-		}
 	}
 }
 
@@ -1275,21 +1073,6 @@ void interpreter(Cartography cartography, int n)
 		case 'T':
 		case 't': // particao
 			commandPartition(arg1, cartography, n);
-			break;
-
-		case 'I':
-		case 'i': // particao
-			altPartition(arg1, cartography, n);
-			break;
-
-		case 'E':
-		case 'e': // particao
-			altFrontier(arg1, arg2, cartography, n);
-			break;
-
-		case 'H':
-		case 'h': // particao
-			commandCountyHoles(cartography, n);
 			break;
 
 		case 'Z':
