@@ -27,7 +27,7 @@ COMENTÃRIO
  se pede no enunciado.
 
 */
-
+#define USE_PTS		true
 #include "Cartography.h"
 /* STRING -------------------------------------- */
 
@@ -205,12 +205,11 @@ static Ring readRing(FILE *f)
 {
 	Ring r;
 	int i, n = readInt(f);
-	if (n > MAX_VERTEXES)
-		error("Anel demasiado extenso");
 	r.nVertexes = n;
+	r.vertexes = (Coordinates *) malloc(sizeof(Coordinates)*n);
 	for (i = 0; i < n; i++)
 	{
-		r.vertexes[i] = readCoordinates(f);
+		 r.vertexes[i] = readCoordinates(f);
 	}
 	r.boundingBox =
 		calculateBoundingBox(r.vertexes, r.nVertexes);
@@ -244,10 +243,9 @@ static Parcel readParcel(FILE *f)
 	Parcel p;
 	p.identification = readIdentification(f);
 	int i, n = readInt(f);
-	if (n > MAX_HOLES)
-		error("Poligono com demasiados buracos");
 	p.edge = readRing(f);
 	p.nHoles = n;
+	p.holes = (Ring *) malloc(sizeof(Ring)*n);
 	for (i = 0; i < n; i++)
 	{
 		p.holes[i] = readRing(f);
@@ -269,7 +267,15 @@ static void showParcel(int pos, Parcel p, int lenght)
 
 bool insideParcel(Coordinates c, Parcel p)
 {
-	////// FAZER
+	if(insideRing(c, p.edge))
+	{
+		if(p.nHoles != 0) {
+		for(int i = 0; i < p.nHoles; i++)
+			if(insideRing(c, p.holes[i]))
+				return false;
+		}
+		return true;
+	}
 	return false;
 }
 
@@ -282,8 +288,7 @@ int loadCartography(String fileName, Cartography *cartography)
 	if (f == NULL)
 		error("Impossivel abrir ficheiro");
 	int n = readInt(f);
-	if (n > MAX_PARCELS)
-		error("Demasiadas parcelas no ficheiro");
+	*cartography = malloc(sizeof(Parcel)*n);
 	for (i = 0; i < n; i++)
 	{
 		(*cartography)[i] = readParcel(f);
@@ -568,7 +573,7 @@ static void commandTravel(double lat, double lon, int pos, Cartography cartograp
 			res = aux;
 		}
 	}
-	printf("%f\n", res);
+	printf(" %f\n", res);
 }
 
 static void commandHowMany(int pos, Cartography cartography, int n)
@@ -673,17 +678,6 @@ static void commandDistricts(Cartography cartography, int n)
 	showStringVector(districts, 5);
 }
 
-static bool hasCoords(double lat, double lon, Ring r)
-{
-	Coordinates cords = coord(lat, lon);
-	for (int i = 0; i < r.nVertexes; i++)
-	{
-		if (sameCoordinates(cords, r.vertexes[i]))
-			return true;
-	}
-	return false;
-}
-
 static void commandParcel(double lat, double lon, Cartography cartography, int n)
 {
 	bool found = false;
@@ -691,7 +685,7 @@ static void commandParcel(double lat, double lon, Cartography cartography, int n
 	for (int i = 0; i < n && !found; i++)
 	{
 		Coordinates cords = coord(lat, lon);
-		if (insideRing(cords, cartography[i].edge))
+		if (insideParcel(cords, cartography[i]))
 		{
 			found = true;
 			pos = i;
@@ -875,7 +869,7 @@ static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 	}
 	else
 	{
-		printf("%d\n", res);
+		printf(" %d\n", res);
 	}
 }
 
@@ -910,9 +904,9 @@ List listPutAtEnd(List l, int val)
 static void printSequence(int start, int end)
 {
 	if(start != end)
-		printf("%d-%d ", start, end);
+		printf(" %d-%d", start, end);
 	else
-	printf("%d ", start);
+	printf(" %d", start);
 }
 
 static void commandPartition(double distance, Cartography cartography, int n)
@@ -986,6 +980,7 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		printf("\n");
 		free(subA);
 	}
+	free(result);
 }
 
 void commandTest(Cartography cartography, int n)
@@ -1029,6 +1024,18 @@ void commandTest(Cartography cartography, int n)
 		commandPartition(i, cartography, n);
 		printf("\n");
 	}
+}
+
+static void freeAll(Cartography cartography, int n)
+{
+	for(int i = 0; i < n; i++)
+	{
+		for(int j = 0; j < cartography[i].nHoles; j++)
+			free(cartography[i].holes[j].vertexes);
+	free(cartography[i].holes);
+	free(cartography[i].edge.vertexes);
+	}
+	free(cartography);
 }
 
 void interpreter(Cartography cartography, int n)
@@ -1107,6 +1114,7 @@ void interpreter(Cartography cartography, int n)
 		case 'Z':
 		case 'z': // terminar
 			printf("Fim de execucao! Volte sempre.\n");
+			freeAll(cartography, n);
 			return;
 
 		default:

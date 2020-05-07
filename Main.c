@@ -4,13 +4,13 @@
  *
  * COMPILAÃ‡ÃƒO: gcc -std=c11 -o Main Cartography.c Main.c -lm
  */
-
+#define USE_PTS		true
 #include "Cartography.h"
 
 #include <assert.h>
 #include <malloc.h>
-/* 
-static void internalTests(bool show)
+
+/* static void internalTests(bool show)
 {
 	if( show ) {
 		assert( fabs( haversine(coord(36.12, -86.67), coord(33.94, -118.40))
@@ -34,24 +34,25 @@ static void showMemory(bool show)
 	if( show ) {
 		long staticMemory = sizeof(cartography);
 		printf("static memory = %ldMB\n", staticMemory/1024/1024);
-	#if __GNUC__
+	//#if __GNUC__
 		struct mallinfo m = mallinfo();
 		long heapMemory = m.hblkhd;
 		printf("heap memory = %ldMB\n", heapMemory/1024/1024);
-	#endif
+	//#endif
 	}
-} */
-/* 
+}
+
 int main(void)
 {
 	internalTests(false);
-	nCartography = loadCartography("map.txt", cartography);
-	showMemory(false);
+	nCartography = loadCartography("map.txt", &cartography);
+	showMemory(true);
 	showCartography(cartography, nCartography);
 	interpreter(cartography, nCartography);
+	showMemory(true);
 	return 0;
-}
- */
+} */
+
 
 static Cartography cartography;	// variÃ¡vel gigante
 static int nCartography = 0;
