@@ -155,8 +155,8 @@ double haversine(Coordinates c1, Coordinates c2)
 
 Rectangle rect(Coordinates tl, Coordinates br)
 {
-	Rectangle rect = {tl, br};
-	return rect;
+	Rectangle r = {tl, br};
+	return r;
 }
 
 static void showRectangle(Rectangle r)
@@ -190,7 +190,12 @@ static Rectangle calculateBoundingBox(Coordinates vs[], int n)
 
 bool insideRectangle(Coordinates c, Rectangle r)
 {
-	////// FAZER
+	if(c.lat <= r.topLeft.lat 
+	&& r.topLeft.lon <= c.lon 
+	&& r.bottomRight.lat <= c.lat 
+	&& c.lon <= r.bottomRight.lon)
+	return true;
+
 	return false;
 }
 
@@ -397,47 +402,6 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 
 	showParcel(position, cartography[position], max);
 
-	/* int i = pos;
-	Parcel maxParcel = cartography[i];
-	i--;
-	while (0 <= i)
-	{
-
-		if (!sameIdentification(cartography[i].identification, maxParcel.identification, 3))
-		{
-			maxParcel = cartography[i + 1];
-			break;
-		}
-		else
-		{
-			i--;
-		}
-	}
-	printf("%d\n", i);
-	int max = maxHoleVertexes(maxParcel);
-	max = max < maxParcel.edge.nVertexes ? maxParcel.edge.nVertexes : max;
-	int position = i;
-	i++;
-	while (sameIdentification(maxParcel.identification, cartography[i].identification, 3))
-	{
-		if (max < cartography[i].edge.nVertexes)
-		{
-			max = cartography[i].edge.nVertexes;
-			maxParcel = cartography[i];
-			position = i;
-		}
-		int maxHole = maxHoleVertexes(cartography[i]);
-		if (max < maxHole)
-		{
-			max = maxHole;
-			maxParcel = cartography[i];
-			position = i;
-		}
-		i++;
-		//printf("%d\n", position);
-	}
-	printf("%d\n", position);
-	showParcel(position, maxParcel, max); */
 }
 
 
@@ -726,8 +690,8 @@ static void commandParcel(double lat, double lon, Cartography cartography, int n
 	int pos = -1;
 	for (int i = 0; i < n && !found; i++)
 	{
-
-		if (hasCoords(lat, lon, cartography[i].edge))
+		Coordinates cords = coord(lat, lon);
+		if (insideRing(cords, cartography[i].edge))
 		{
 			found = true;
 			pos = i;
