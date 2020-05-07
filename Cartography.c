@@ -540,18 +540,15 @@ static void commandResume(int pos, Cartography cartography, int n)
 	showIdentification(pos, p.identification, 3);
 
 	printf("\n%4s %d ", "", p.edge.nVertexes);
-	showRectangle(p.edge.boundingBox);
-	printf("\n");
-
 	if (p.nHoles != 0)
 	{
 		for (int i = 0; i < p.nHoles; i++)
 		{
-			printf("%s %d ", "", p.holes[i].nVertexes);
-			showRectangle(p.holes[i].boundingBox);
-			printf("\n");
+			printf("%d ", p.holes[i].nVertexes);
 		}
 	}
+	showRectangle(p.edge.boundingBox);
+	printf("\n");
 }
 
 static void commandTravel(double lat, double lon, int pos, Cartography cartography, int n)
@@ -1283,6 +1280,11 @@ void interpreter(Cartography cartography, int n)
 		case 'I':
 		case 'i': // particao
 			altPartition(arg1, cartography, n);
+			break;
+
+		case 'E':
+		case 'e': // particao
+			altFrontier(arg1, arg2, cartography, n);
 			break;
 
 		case 'H':
