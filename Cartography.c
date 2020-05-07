@@ -352,26 +352,52 @@ static int maxHoleVertexes(Parcel p)
 	return max;
 }
 
-// M pos
+static void searchMax(Cartography cartography, int n, int *max, int pos, int * position, bool reverse)
+{
+	int i =  pos;
+	Parcel maxParcel = cartography[pos];
 
-/*
+		while(sameIdentification(maxParcel.identification, cartography[i].identification, 3))
+	{
+		if (*max < cartography[i].edge.nVertexes)
+		{
+			*max = cartography[i].edge.nVertexes;
+			maxParcel = cartography[i];
+			*position = i;
+		}
+		int maxHole = maxHoleVertexes(cartography[i]);
+		if (*max < maxHole)
+		{
+			*max = maxHole;
+			maxParcel = cartography[i];
+			*position = i;
+		}
+		if(reverse)
+			i--;
+		else
+		{
+			i++;
+		}
+		if(i == -1 || i == n)
+			break;
+		
+	}
+}
 
-Comando Máximo - Dada uma parcela indicada através duma posição no vetor, 
-descobre e mostra qual a parcela dessa freguesia que tem mais vértices 
-(considerando todos os anéis - exterior e interiores). 
-Em caso de parcelas empatadas, mostra qualquer uma delas.
-
-*/
-//what the fuck in 'n' ?
 static void commandMaximum(int pos, Cartography cartography, int n)
 {
 	if (!checkArgs(pos) || !checkPos(pos, n))
 	{
-		// printf("ERRO: POSICAO INEXISTENTE!\n"); there is no need, chechArgs and checkPos have printfs
 		return;
 	}
+	int max = 0;
+	int position = 0;
+	searchMax(cartography, n, &max, pos, &position, true);
+	searchMax(cartography, n, &max, pos, &position, false);	
 
-	int i = pos;
+	showParcel(position, cartography[position], max);
+
+	/* int i = pos;
 	Parcel maxParcel = cartography[i];
 	i--;
 	while (0 <= i)
@@ -387,7 +413,7 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			i--;
 		}
 	}
-	//David, why are you comparing number of wholes with number of vertexes of a ring, there are more nVertexes than nHoles
+	printf("%d\n", i);
 	int max = maxHoleVertexes(maxParcel);
 	max = max < maxParcel.edge.nVertexes ? maxParcel.edge.nVertexes : max;
 	int position = i;
@@ -408,12 +434,13 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 			position = i;
 		}
 		i++;
+		//printf("%d\n", position);
 	}
-	showParcel(position, maxParcel, max);
+	printf("%d\n", position);
+	showParcel(position, maxParcel, max); */
 }
-/**
-A function that gives me the max Parcel of a cartography with the b condition, not counting holes
-*/
+
+
 
 typedef bool BoolFun(Coordinates, Coordinates);
 
@@ -754,10 +781,10 @@ bool adjacentParcels(Parcel a, Parcel b)
 	}
 
 	int nHoles = a.nHoles;
-	Ring *aHoles = a.holes;
+	//Ring *aHoles = a.holes;
 
 	int bnHoles = b.nHoles;
-	Ring *bHoles = b.holes;
+	//Ring *bHoles = b.holes;
 
 	for (int i = 0; i < bnHoles; i++)
 	{
@@ -772,11 +799,6 @@ bool adjacentParcels(Parcel a, Parcel b)
 		}
 	}
 	return false;
-}
-
-static int numbers_strcmp(const void *a, const void *b)
-{
-	return (*(int *)a - *(int *)b);
 }
 
 static void CommandAdjecent(int pos, Cartography cartography, int n)
@@ -818,16 +840,20 @@ static int bfs(Cartography carts, int n, int src, int dest)
 	int visited[n];
 	int dist[n];
 	int queue[n];
-	int int_max = 2147483647;
+	//int int_max = 2147483647;
+	memset(visited, 0, sizeof(int) * n);
 	memset(dist, -1, sizeof(int) * n);
 	memset(queue, -1, sizeof(int) * n);
 
 	dist[src] = 0; //val
 	queue[0] = src;
+
+	visited[0] = 1;
+
 	int elems = 1;
 	int pop = 0;
 	int current = src;
-	int sol[10];
+	//int sol[10];
 	
 	while (current != -1 && current < n && elems < n)
 	{
@@ -934,14 +960,12 @@ static void commandPartition(double distance, Cartography cartography, int n)
 	int countAdded = 0;
 	memset(added, 0, n * sizeof(int));
 
-	Parcel ref = cartography[0];
 
 	subA = NULL;
 	for (int k = 0; k < n; k++)
 	{
 		if (added[k] == 0)
 		{
-			ref = cartography[k];
 			added[k] = 1;
 			countAdded++;
 			subA = listPutAtEnd(subA, k);
@@ -967,9 +991,6 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		}
 		subA = NULL;
 	}
-
-	int start = 0;
-	int end = 0;
 
 	for (int k = 0; k < resCounter; k++)
 	{
@@ -999,6 +1020,16 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		}
 		printf("\n");
 		free(subA);
+	}
+}
+
+void commandTest(Cartography cartography, int n)
+{
+	for(int i = 0; i < n; i++)
+	{
+		printf("Maximum %d\n", i);
+		commandMaximum(i, cartography, n);
+		printf("\n");
 	}
 }
 
