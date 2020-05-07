@@ -947,7 +947,7 @@ static void printSequence(int start, int end)
 {
 	if(start != end)
 		printf("%d-%d ", start, end);
-		
+	else
 	printf("%d ", start);
 }
 
@@ -1006,7 +1006,8 @@ static void commandPartition(double distance, Cartography cartography, int n)
 					end = subA->next->data;
 				}
 				else
-				{
+				{	
+					//printf("%d\n", start);
 					printSequence(start,end);
 					start = subA->next->data;
 					end = subA->next->data;
@@ -1029,6 +1030,39 @@ void commandTest(Cartography cartography, int n)
 	{
 		printf("Maximum %d\n", i);
 		commandMaximum(i, cartography, n);
+		printf("\n");
+	}
+
+	printf("extremes\n");
+	commandParcelExtremes(cartography, n);
+	printf("\n");
+
+	for(int i = 0; i < n; i++)
+	{
+		printf("Resume %d\n", i);
+		commandResume(i, cartography, n);
+		printf("\n");
+	}
+
+	for(int i = 0; i < n; i++)
+	{
+		printf("Quantos %d\n", i);
+		commandHowMany(i, cartography, n);
+		printf("\n");
+	}
+
+	printf("concelhos\n");
+	commandCounties(cartography, n);
+	printf("\n");
+
+	printf("distritos\n");
+	commandDistricts(cartography, n);
+	printf("\n");
+
+	for(int i = 1000; 0 <= i; i-=50)
+	{
+		printf("Particao %d\n", i);
+		commandPartition(i, cartography, n);
 		printf("\n");
 	}
 }
