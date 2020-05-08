@@ -18,8 +18,8 @@ COMPILAÃ‡ÃƒO
 
 IDENTIFICAÃ‡ÃƒO DOS AUTORES
 
-  Aluno 1: nÃºmero1 nome1
-  Aluno 2: nÃºmero2 nome2
+  Aluno 1: 55045 David Antunes
+  Aluno 2: 55797 Joao Daniel
 
 COMENTÃRIO
 
@@ -360,6 +360,12 @@ static int getTotalVertexes(Parcel p)
 	return counter;
 }
 
+	/* 
+		Depending on the value of reverse, it will search for the maximum number of vertexes from the given pos, altering the value in memory of position and max.
+		IF reverse is true, the function will go backwards from pos.
+		IF reverse is false, the function will go forward from pos.	
+
+	 */
 static void searchMax(Cartography cartography, int n, int *max, int pos, int * position, bool reverse)
 {
 	int i =  pos;
@@ -578,7 +584,15 @@ static void commandTravel(double lat, double lon, int pos, Cartography cartograp
 }
 
 static void commandHowMany(int pos, Cartography cartography, int n)
+
+
 {
+	if (!checkPos(pos, n))
+	{
+		return;
+	}
+
+
 	int towns = 0;
 	int counties = 0;
 	int districts = 0;
@@ -855,22 +869,20 @@ static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 	if (pos1 == pos2)
 	{
 		res = 0;
+		printf(" %d\n", res);
 	}
 	else if (adjacentParcels(cartography[pos1], cartography[pos2]))
 	{
 		res = 1;
-	}
+		printf(" %d\n", res);
+	} 
 	else
 	{
 		res = bfs(cartography, n, pos1, pos2);
-	}
-	if (res == 0)
-	{
-		printf("NAO HA CAMINHO\n");
-	}
-	else
-	{
-		printf(" %d\n", res);
+		if (res == 0)
+		{
+			printf("NAO HA CAMINHO\n");
+		}
 	}
 }
 
