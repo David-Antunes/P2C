@@ -61,7 +61,6 @@ static int nCartography = 0;
 int main(void)
 {
 	nCartography = loadCartography("map.txt", &cartography);
-	//commandTest(cartography, 176);
 	showCartography(cartography, nCartography);
 	interpreter(cartography, nCartography);
 

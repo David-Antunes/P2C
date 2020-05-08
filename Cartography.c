@@ -236,6 +236,37 @@ bool insideRing(Coordinates c, Ring r)
 	return oddNodes;
 }
 
+
+static bool vertexInRing(Coordinates c1, Ring r)
+{
+	int nOuters = r.nVertexes;
+	Coordinates *outers = r.vertexes;
+	int i = 0;
+	while (i < nOuters)
+	{
+		if (outers[i].lat == c1.lat && outers[i].lon == c1.lon)
+		{
+			return true;
+		}
+		i++;
+	}
+	return false;
+}
+
+bool adjacentRings(Ring a, Ring b)
+{
+	int n = a.nVertexes;
+	Coordinates *verts = a.vertexes;
+	for (int i = 0; i < n; i++)
+	{
+		if (vertexInRing(verts[i], b))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 /* PARCEL -------------------------------------- */
 
 static Parcel readParcel(FILE *f)
@@ -278,6 +309,34 @@ bool insideParcel(Coordinates c, Parcel p)
 	}
 	return false;
 }
+
+
+bool adjacentParcels(Parcel a, Parcel b)
+{
+	if (adjacentRings(a.edge, b.edge))
+	{
+		return true;
+	}
+
+	int nHoles = a.nHoles;
+
+	int bnHoles = b.nHoles;
+
+	for (int i = 0; i < bnHoles; i++)
+	{
+		if(adjacentRings(a.edge,b.holes[i])){
+			return true;
+		}
+	}
+	for (int i = 0; i < nHoles; i++)
+	{
+		if(adjacentRings(a.holes[i],b.edge)){
+			return true;
+		}
+	}
+	return false;
+}
+
 
 /* CARTOGRAPHY -------------------------------------- */
 int loadCartography(String fileName, Cartography *cartography)
@@ -340,6 +399,48 @@ static bool checkPos(int pos, int n)
 	{
 		printf("ERRO: POSICAO INEXISTENTE!\n");
 		return false;
+	}
+}
+
+/* QSORT COMPARATORS -------------------------------------- */
+
+static int v_strcmp(const void *str1, const void *str2)
+{
+	return strcmp(str1, str2);
+}
+
+static int v_cmp(const void *str1, const void *str2)
+{
+	return (*(int*)str1) - (*(int*)str2);
+}
+
+/* LIST STRUCTURE -------------------------------------- */
+typedef struct Node
+{
+	int data;
+	struct Node *next;
+} Node, *List;
+
+static List newNode(int val, List next)
+{
+	List n = malloc(sizeof(Node));
+	if (n == NULL)
+		return NULL;
+	n->data = val;
+	n->next = next;
+	return n;
+}
+List listPutAtEnd(List l, int val)
+{
+	if (l == NULL)
+		return newNode(val, NULL);
+	else
+	{
+		List p;
+		for (p = l; p->next != NULL; p = p->next)
+			;						  // Stop at the last node
+		p->next = newNode(val, NULL); // Assign to the next of the last node
+		return l;
 	}
 }
 
@@ -648,10 +749,6 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 	showValue(districts);
 }
 
-static int v_strcmp(const void *str1, const void *str2)
-{
-	return strcmp(str1, str2);
-}
 
 static void commandCounties(Cartography cartography, int n)
 {
@@ -717,63 +814,6 @@ static void commandParcel(double lat, double lon, Cartography cartography, int n
 	}
 }
 
-static bool vertexInRing(Coordinates c1, Ring r)
-{
-	int nOuters = r.nVertexes;
-	Coordinates *outers = r.vertexes;
-	int i = 0;
-	while (i < nOuters)
-	{
-		if (outers[i].lat == c1.lat && outers[i].lon == c1.lon)
-		{
-			return true;
-		}
-		i++;
-	}
-	return false;
-}
-bool adjacentRings(Ring a, Ring b)
-{
-	int n = a.nVertexes;
-	Coordinates *verts = a.vertexes;
-	for (int i = 0; i < n; i++)
-	{
-		if (vertexInRing(verts[i], b))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool adjacentParcels(Parcel a, Parcel b)
-{
-	if (adjacentRings(a.edge, b.edge))
-	{
-		return true;
-	}
-
-	int nHoles = a.nHoles;
-	//Ring *aHoles = a.holes;
-
-	int bnHoles = b.nHoles;
-	//Ring *bHoles = b.holes;
-
-	for (int i = 0; i < bnHoles; i++)
-	{
-		if(adjacentRings(a.edge,b.holes[i])){
-			return true;
-		}
-	}
-	for (int i = 0; i < nHoles; i++)
-	{
-		if(adjacentRings(a.holes[i],b.edge)){
-			return true;
-		}
-	}
-	return false;
-}
-
 static void CommandAdjecent(int pos, Cartography cartography, int n)
 {
 	if (!checkPos(pos, n))
@@ -813,7 +853,6 @@ static int bfs(Cartography carts, int n, int src, int dest)
 	int visited[n];
 	int dist[n];
 	int queue[n];
-	//int int_max = 2147483647;
 	memset(visited, 0, sizeof(int) * n);
 	memset(dist, -1, sizeof(int) * n);
 	memset(queue, -1, sizeof(int) * n);
@@ -826,7 +865,6 @@ static int bfs(Cartography carts, int n, int src, int dest)
 	int elems = 1;
 	int pop = 0;
 	int current = src;
-	//int sol[10];
 	
 	while (current != -1 && current < n && elems < n)
 	{
@@ -884,40 +922,6 @@ static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 			printf("NAO HA CAMINHO\n");
 		}
 	}
-}
-
-typedef struct Node
-{
-	int data;
-	struct Node *next;
-} Node, *List;
-
-static List newNode(int val, List next)
-{
-	List n = malloc(sizeof(Node));
-	if (n == NULL)
-		return NULL;
-	n->data = val;
-	n->next = next;
-	return n;
-}
-List listPutAtEnd(List l, int val)
-{
-	if (l == NULL)
-		return newNode(val, NULL);
-	else
-	{
-		List p;
-		for (p = l; p->next != NULL; p = p->next)
-			;						  // Stop at the last node
-		p->next = newNode(val, NULL); // Assign to the next of the last node
-		return l;
-	}
-}
-
-static int v_cmp(const void *str1, const void *str2)
-{
-	return (*(int*)str1) - (*(int*)str2);
 }
 
 static void printSequence(int start, int end)
@@ -1015,49 +1019,6 @@ static void commandPartition(double distance, Cartography cartography, int n)
 			}
 		}
 		counter = 0;
-		printf("\n");
-	}
-}
-
-void commandTest(Cartography cartography, int n)
-{
-	for(int i = 0; i < n; i++)
-	{
-		printf("Maximum %d\n", i);
-		commandMaximum(i, cartography, n);
-		printf("\n");
-	}
-
-	printf("extremes\n");
-	commandParcelExtremes(cartography, n);
-	printf("\n");
-
-	for(int i = 0; i < n; i++)
-	{
-		printf("Resume %d\n", i);
-		commandResume(i, cartography, n);
-		printf("\n");
-	}
-
-	for(int i = 0; i < n; i++)
-	{
-		printf("Quantos %d\n", i);
-		commandHowMany(i, cartography, n);
-		printf("\n");
-	}
-
-	printf("concelhos\n");
-	commandCounties(cartography, n);
-	printf("\n");
-
-	printf("distritos\n");
-	commandDistricts(cartography, n);
-	printf("\n");
-
-	for(int i = 1000; 0 <= i; i-=50)
-	{
-		printf("Particao %d\n", i);
-		commandPartition(i, cartography, n);
 		printf("\n");
 	}
 }
