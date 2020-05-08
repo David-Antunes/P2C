@@ -349,17 +349,15 @@ static void commandListCartography(Cartography cartography, int n)
 	showCartography(cartography, n);
 }
 
-static int maxHoleVertexes(Parcel p)
+static int getTotalVertexes(Parcel p)
 {
-	if (p.nHoles == 0)
-		return 0;
-	int max = p.edge.nVertexes;
+	int counter = p.edge.nVertexes;
+
 	for (int i = 0; i < p.nHoles; i++)
 	{
-		if (max < p.holes[i].nVertexes)
-			max = p.holes[i].nVertexes;
+		counter += p.holes[i].nVertexes;
 	}
-	return max;
+	return counter;
 }
 
 static void searchMax(Cartography cartography, int n, int *max, int pos, int * position, bool reverse)
@@ -369,19 +367,14 @@ static void searchMax(Cartography cartography, int n, int *max, int pos, int * p
 
 		while(sameIdentification(maxParcel.identification, cartography[i].identification, 3))
 	{
-		if (*max < cartography[i].edge.nVertexes)
+		int maxVertexes = getTotalVertexes(cartography[i]);
+		if (*max < maxVertexes)
 		{
-			*max = cartography[i].edge.nVertexes;
+			*max = maxVertexes;
 			maxParcel = cartography[i];
 			*position = i;
 		}
-		int maxHole = maxHoleVertexes(cartography[i]);
-		if (*max < maxHole)
-		{
-			*max = maxHole;
-			maxParcel = cartography[i];
-			*position = i;
-		}
+		
 		if(reverse)
 			i--;
 		else
@@ -400,8 +393,8 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 	{
 		return;
 	}
-	int max = 0;
-	int position = 0;
+	int max = getTotalVertexes(cartography[pos]);
+	int position = pos;
 	searchMax(cartography, n, &max, pos, &position, true);
 	searchMax(cartography, n, &max, pos, &position, false);	
 
@@ -472,9 +465,17 @@ static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2,
 void extremeParcel(Cartography carts, int len, BoolFun north, 
 					BoolFun south, BoolFun east, BoolFun west)
 {
-	Parcel p1, p2, p3, p4;
-	p1 = p2 = p3 = p4 = carts[0];
-	int pos1, pos2, pos3, pos4 = 0;
+	Parcel p1 = carts[0];
+	Parcel p2 = carts[0];
+	Parcel p3 = carts[0];
+	Parcel p4 = carts[0];
+
+	int pos1 = 0;
+	int pos2 = 0;
+	int pos3 = 0;
+	int pos4 = 0;
+
+
 	Coordinates cs[4];
 	extremeCoordinates(p1, north, south, east, west, cs);
 	Coordinates n = cs[0];
@@ -675,7 +676,7 @@ static void commandDistricts(Cartography cartography, int n)
 	}
 	ndistricts++;
 	qsort(districts, ndistricts, sizeof(String), v_strcmp);
-	showStringVector(districts, 5);
+	showStringVector(districts, ndistricts);
 }
 
 static void commandParcel(double lat, double lon, Cartography cartography, int n)
@@ -901,6 +902,12 @@ List listPutAtEnd(List l, int val)
 		return l;
 	}
 }
+
+static int v_cmp(const void *str1, const void *str2)
+{
+	return (*(int*)str1) - (*(int*)str2);
+}
+
 static void printSequence(int start, int end)
 {
 	if(start != end)
@@ -927,19 +934,24 @@ static void commandPartition(double distance, Cartography cartography, int n)
 			added[k] = 1;
 			countAdded++;
 			subA = listPutAtEnd(subA, k);
-			for (int z = 0; z < n; z++)
+
+			for(List aux = subA; aux != NULL; aux = aux->next)
 			{
-				if (added[z] == 0 && z != k)
+				for (int z = 0; z < n; z++)
 				{
-					if (distance > haversine(cartography[k].edge.vertexes[0], 
-											cartography[z].edge.vertexes[0]))
+					if (added[z] == 0 && z != k)
 					{
-						subA = listPutAtEnd(subA, z);
-						added[z] = 1;
-						countAdded++;
+						if (distance >= haversine(cartography[aux->data].edge.vertexes[0], 
+												cartography[z].edge.vertexes[0]))
+						{
+							listPutAtEnd(aux, z);
+							added[z] = 1;
+							countAdded++;
+						}
 					}
 				}
 			}
+
 			if (subA != NULL)
 			{
 				result[resCounter] = subA;
@@ -950,25 +962,38 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		subA = NULL;
 	}
 
+	int values[n];
+	int counter = 0;
+
 	for (int k = 0; k < resCounter; k++)
 	{
 		subA = result[k];
-		int start = subA->data;
-		int end = subA->data;
-		for (; subA != NULL; subA = subA->next)
+
+		for(; subA != NULL; subA = subA->next)
 		{
-			if(subA->next != NULL)
+			values[counter++] = subA->data;
+			free(subA);
+		}
+
+		qsort(values, counter, sizeof(int), v_cmp);	
+		
+		int start = values[0];
+		int end = values[0];
+
+		for (int i = 0; i < counter; i++)
+		{
+			if((i + 1) < counter)
 			{
-				if(subA->next->data - end == 1) 
+				if(values[i + 1] - end == 1) 
 				{
-					end = subA->next->data;
+					end = values[i + 1];
 				}
 				else
 				{	
-					//printf("%d\n", start);
+
 					printSequence(start,end);
-					start = subA->next->data;
-					end = subA->next->data;
+					start = values[i+ 1];
+					end = values[i+ 1];
 				}
 				
 			}
@@ -977,10 +1002,9 @@ static void commandPartition(double distance, Cartography cartography, int n)
 				printSequence(start,end);
 			}
 		}
+		counter = 0;
 		printf("\n");
-		free(subA);
 	}
-	free(result);
 }
 
 void commandTest(Cartography cartography, int n)
