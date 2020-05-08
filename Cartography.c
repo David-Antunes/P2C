@@ -236,7 +236,9 @@ bool insideRing(Coordinates c, Ring r)
 	return oddNodes;
 }
 
-
+/**
+ * checks if the ring has a coordinate exactly the same as c1
+ * */
 static bool vertexInRing(Coordinates c1, Ring r)
 {
 	int nOuters = r.nVertexes;
@@ -252,7 +254,9 @@ static bool vertexInRing(Coordinates c1, Ring r)
 	}
 	return false;
 }
-
+/* 
+given two rings a and b, checks if the have at least one common vertex
+**/
 bool adjacentRings(Ring a, Ring b)
 {
 	int n = a.nVertexes;
@@ -295,7 +299,8 @@ static void showParcel(int pos, Parcel p, int lenght)
 	showIdentification(pos, p.identification, 3);
 	showValue(lenght);
 }
-
+/**checks if the coordinates c is among the coordinates of the parcel p
+ * */
 bool insideParcel(Coordinates c, Parcel p)
 {
 	if(insideRing(c, p.edge))
@@ -310,10 +315,10 @@ bool insideParcel(Coordinates c, Parcel p)
 	return false;
 }
 
-
+/* given two parcels, checks if they have at least a common coordinate */
 bool adjacentParcels(Parcel a, Parcel b)
 {
-	if (adjacentRings(a.edge, b.edge))
+	if (adjacentRings(a.edge, b.edge)) //checks if a's outer edges and b outer edges have share a coordinate
 	{
 		return true;
 	}
@@ -322,13 +327,13 @@ bool adjacentParcels(Parcel a, Parcel b)
 
 	int bnHoles = b.nHoles;
 
-	for (int i = 0; i < bnHoles; i++)
+	for (int i = 0; i < bnHoles; i++) //checks if a's outer edges and b's holes share a coordinate
 	{
 		if(adjacentRings(a.edge,b.holes[i])){
 			return true;
 		}
 	}
-	for (int i = 0; i < nHoles; i++)
+	for (int i = 0; i < nHoles; i++) //checks if b's outer edges and a's holes share a coordinate
 	{
 		if(adjacentRings(a.holes[i],b.edge)){
 			return true;
@@ -369,7 +374,7 @@ static int findLast(Cartography cartography, int n, int j, Identification id)
 void showCartography(Cartography cartography, int n)
 {
 	int last;
-	Identification header = {"___FREGUESIA___", "___CONCELHO___", "___DISTRITO___"};
+	Identification header = {"__FREGUESIA_", "_CONCELHO_", "_DISTRITO__"};
 	showHeader(header);
 	for (int i = 0; i < n; i = last + 1)
 	{
@@ -411,10 +416,10 @@ static int v_strcmp(const void *str1, const void *str2)
 
 static int v_cmp(const void *str1, const void *str2)
 {
-	return (*(int*)str1) - (*(int*)str2);
+	return ((int*)str1) - ((int*)str2);
 }
 
-/* LIST STRUCTURE -------------------------------------- */
+/* SINGLE LINKED LIST STRUCTURE -------------------------------------- */
 typedef struct Node
 {
 	int data;
@@ -462,7 +467,8 @@ static int getTotalVertexes(Parcel p)
 }
 
 	/* 
-		Depending on the value of reverse, it will search for the maximum number of vertexes from the given pos, altering the value in memory of position and max.
+		Depending on the value of reverse, it will search for the maximum number of vertexes 
+		from the given pos, altering the value in memory of position and max.
 		IF reverse is true, the function will go backwards from pos.
 		IF reverse is false, the function will go forward from pos.	
 
@@ -510,27 +516,32 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 }
 
 
-
+/*boolean type struct */
 typedef bool BoolFun(Coordinates, Coordinates);
 
+/* given two different coordinates returns true if c1 is north relative to c2 */
 static bool northest(Coordinates c1, Coordinates c2)
 {
 	return c1.lat >= c2.lat;
 }
-
+/* given two different coordinates returns true if c1 is south relative to c2 */
 static bool southest(Coordinates c1, Coordinates c2)
 {
 	return !northest(c1, c2);
 }
+/* given two different coordinates returns true if c1 is east relative to c2 */
 static bool easthern(Coordinates c1, Coordinates c2)
 {
 	return c1.lon >= c2.lon;
 }
+
+/* given two different coordinates returns true if c1 is west relative to c2 */
 static bool westest(Coordinates c1, Coordinates c2)
 {
 	return !easthern(c1, c2);
 }
-/** given a parcel, it returns the coordinates of 
+/** given a parcel, and 4 bool function that says who is north, south, west and north,
+ *  it saves in the array res the coordinates of 
  * the northest, southest, eastern and western edges in array given as an argument  */
 static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2, 
 								BoolFun b3, BoolFun b4, Coordinates res[])
@@ -569,6 +580,7 @@ static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2,
 // bol: north south east west
 
 // bol: north south east west
+/* prints the parcel from the cartography carts that has the nearest coordinates to the cardinal points */
 void extremeParcel(Cartography carts, int len, BoolFun north, 
 					BoolFun south, BoolFun east, BoolFun west)
 {
@@ -847,46 +859,44 @@ static void CommandAdjecent(int pos, Cartography cartography, int n)
 		printf("\n");
 	}
 }
-
+/* performs a breadth search to find the number of paths from the parcel src to dest*/
 static int bfs(Cartography carts, int n, int src, int dest)
 {
-	int visited[n];
-	int dist[n];
-	int queue[n];
-	memset(visited, 0, sizeof(int) * n);
+	int dist[n]; //stores distance of every parcel from src
+	int queue[n]; // keeps track of all the visited parcels
 	memset(dist, -1, sizeof(int) * n);
 	memset(queue, -1, sizeof(int) * n);
 
-	dist[src] = 0; //val
-	queue[0] = src;
+	dist[src] = 0; 
+	queue[0] = src; 
 
-	visited[0] = 1;
-
-	int elems = 1;
-	int pop = 0;
-	int current = src;
+	int elems = 1; //number os elements added to the queue
+	int pop = 0; //number of elements removed from the queue
+	int current = src; //current as the father node during the iteration
 	
-	while (current != -1 && current < n && elems < n)
+	while (elems < n && pop < elems ) // while there are more elements to be queued and not all queue were removed
 	{
-		current = queue[pop++];
+		current = queue[pop++]; 
+		/*
+		David, We dont need this
 		if (current >= n || current < 0)
 		{
 			break;
-		}
-		for (int i = 0; i < n; i++)
+		} */
+
+		for (int i = 0; i < n; i++) //finds all the neighbours of current
 		{
-			if (current != i && adjacentParcels(carts[current], carts[i]))
+			if (current != i && adjacentParcels(carts[current], carts[i])) 
 			{
-				if (dist[i]== -1)
+				if (dist[i]== -1) // if it was not visited yet
 				{
-					if (i != dest)
+					if (i != dest) //if it is not the parcel we want
 					{
-						queue[elems++] = i;
-						visited[i] = 1;
-						dist[i] = dist[current] + 1;
+						queue[elems++] = i; //add it into the queue to have its neighbours checked
+						dist[i] = dist[current] + 1; //calculates its distance from the src
 					}
 					else
-					{
+					{	//if we found the target, return its distance from the source
 						return dist[current] + 1;
 					}
 				}
