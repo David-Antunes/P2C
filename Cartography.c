@@ -416,7 +416,7 @@ static int v_strcmp(const void *str1, const void *str2)
 
 static int v_cmp(const void *str1, const void *str2)
 {
-	return ((int*)str1) - ((int*)str2);
+	return (*(int*)str1) - (*(int*)str2);
 }
 
 /* SINGLE LINKED LIST STRUCTURE -------------------------------------- */
@@ -930,6 +930,10 @@ static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 		if (res == 0)
 		{
 			printf("NAO HA CAMINHO\n");
+		}
+		else
+		{
+			printf(" %d\n", res);
 		}
 	}
 }
