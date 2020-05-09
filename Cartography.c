@@ -1,30 +1,20 @@
 /*
-largura maxima = 100 colunas
-tab = 4 espaÃ§os
-0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
-
-	Linguagens e Ambientes de ProgramaÃ§Ã£o (B) - Projeto de 2019/20
-
-	Cartography.c
-
-	Este ficheiro constitui apenas um ponto de partida para o
-	seu trabalho. Todo este ficheiro pode e deve ser alterado
-	Ã  vontade, a comeÃ§ar por este comentÃ¡rio. Ã‰ preciso inventar
-	muitas funÃ§Ãµes novas.
-
-COMPILAÃ‡ÃƒO
-
-  gcc -std=c11 -o Main Cartography.c Main.c -lm
-
-IDENTIFICAÃ‡ÃƒO DOS AUTORES
-
   Aluno 1: 55045 David Antunes
   Aluno 2: 55797 Joao Daniel
 
 COMENTÃRIO
 
- Coloque aqui a identificaÃ§Ã£o do grupo, mais os seus comentÃ¡rios, como
- se pede no enunciado.
+ Comando Maximo : David Antunes
+ Comando Extremos : Joao Daniel
+ Comando Resumo : David Antunes
+ Comando Viagem : Joao Daniel
+ Comando Quantos : David Antunes
+ Comando Concelhos : David Antunes
+ Comando Distritos : Joao Daniel
+ Comando Parcela : Joao Daniel
+ Comando Adjacencia : David Antunes
+ Comando Fronteira : Joao Daniel
+ Comando Particao : David Antunes
 
 */
 #define USE_PTS		true
@@ -377,7 +367,7 @@ static int findLast(Cartography cartography, int n, int j, Identification id)
 void showCartography(Cartography cartography, int n)
 {
 	int last;
-	Identification header = {"__FREGUESIA__", "__CONCELHO__", "__DISTRITO__"};
+	Identification header = {"___FREGUESIA___", "___CONCELHO___", "___DISTRITO___"};
 	showHeader(header);
 	for (int i = 0; i < n; i = last + 1)
 	{
@@ -676,6 +666,10 @@ static void commandParcelExtremes(Cartography cartography, int n)
 */
 static void commandResume(int pos, Cartography cartography, int n)
 {
+		if (!checkPos(pos, n))
+	{
+		return;
+	}
 	Parcel p = cartography[pos];
 
 	showIdentification(pos, p.identification, 3);
@@ -869,7 +863,6 @@ static void commandParcel(double lat, double lon, Cartography cartography, int n
 /*
 	Prints the parcel that are adjacent to the given parcel with the given pos
 */
-
 static void CommandAdjecent(int pos, Cartography cartography, int n)
 {
 	if (!checkPos(pos, n))
@@ -920,12 +913,6 @@ static int bfs(Cartography carts, int n, int src, int dest)
 	while (elems < n && pop < elems ) // while there are more elements to be queued and not all queue were removed
 	{
 		current = queue[pop++]; 
-		/*
-		David, We dont need this
-		if (current >= n || current < 0)
-		{
-			break;
-		} */
 
 		for (int i = 0; i < n; i++) //finds all the neighbours of current
 		{
@@ -992,7 +979,9 @@ static void printSequence(int start, int end)
 	else
 	printf(" %d", start);
 }
-
+/*
+	Filters the parcels into subsets, and stores them in result
+*/
 static int getPartitions(double distance, List result[], Cartography cartography, int n)
 {
 	int resCounter = 0; //Number of subsets
@@ -1040,7 +1029,9 @@ static int getPartitions(double distance, List result[], Cartography cartography
 	}
 	return resCounter;
 }
-
+/*
+	Converts a list to a vector
+*/
 static int listToVector(List list, int * values)
 {
 	List subA = list;
@@ -1062,6 +1053,12 @@ static int listToVector(List list, int * values)
 */
 static void commandPartition(double distance, Cartography cartography, int n)
 {
+
+	if (distance < 0)
+	{
+		printf("DISTANCIA NEGATIVA!\n");
+		return;
+	}
 
 	List result [n];//Lists of every subset
 	int resCounter = getPartitions(distance, result, cartography, n); //Number of subsets
@@ -1109,18 +1106,6 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		counter = 0;
 		printf("\n");
 	}
-}
-
-static void freeAll(Cartography cartography, int n)
-{
-	for(int i = 0; i < n; i++)
-	{
-		for(int j = 0; j < cartography[i].nHoles; j++)
-			free(cartography[i].holes[j].vertexes);
-	free(cartography[i].holes);
-	free(cartography[i].edge.vertexes);
-	}
-	free(cartography);
 }
 
 void interpreter(Cartography cartography, int n)
@@ -1199,7 +1184,6 @@ void interpreter(Cartography cartography, int n)
 		case 'Z':
 		case 'z': // terminar
 			printf("Fim de execucao! Volte sempre.\n");
-			freeAll(cartography, n);
 			return;
 
 		default:
