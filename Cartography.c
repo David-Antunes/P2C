@@ -374,7 +374,7 @@ static int findLast(Cartography cartography, int n, int j, Identification id)
 void showCartography(Cartography cartography, int n)
 {
 	int last;
-	Identification header = {"__FREGUESIA_", "_CONCELHO_", "_DISTRITO__"};
+	Identification header = {"__FREGUESIA__", "__CONCELHO__", "__DISTRITO__"};
 	showHeader(header);
 	for (int i = 0; i < n; i = last + 1)
 	{
