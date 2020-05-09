@@ -4,6 +4,8 @@
 
 COMENTÃRIO
 
+Grupo : 55045_55797
+
  Comando Maximo : David Antunes
  Comando Extremos : Joao Daniel
  Comando Resumo : David Antunes
@@ -449,7 +451,8 @@ static void commandListCartography(Cartography cartography, int n)
 }
 
 /* 
-	Given a parcel, it counts the total number of vertexes present in the edge and all of the holes
+	Given a parcel, it counts the total number of vertexes present in 
+	the edge and all of the holes
 */
 static int getTotalVertexes(Parcel p)
 {
@@ -469,7 +472,8 @@ static int getTotalVertexes(Parcel p)
 		IF reverse is false, the function will go forward from pos.	
 
 	 */
-static void searchMax(Cartography cartography, int n, int *max, int pos, int * position, bool reverse)
+static void searchMax(Cartography cartography, int n, int *max, int pos, int * position, 
+						bool reverse)
 {
 	int i =  pos;
 	Parcel maxParcel = cartography[pos];
@@ -478,7 +482,8 @@ static void searchMax(Cartography cartography, int n, int *max, int pos, int * p
 	{
 
 		int maxVertexes = getTotalVertexes(cartography[i]);
-		if (*max < maxVertexes) // If maxVertexes is bigger, max is changed with the new value
+		// If maxVertexes is bigger, max is changed with the new value
+		if (*max < maxVertexes) 
 		{
 			*max = maxVertexes;
 			maxParcel = cartography[i];
@@ -497,7 +502,8 @@ static void searchMax(Cartography cartography, int n, int *max, int pos, int * p
 	}
 }
 /*
-	Given the position, it will print the maximum number of vertexes present in the parcel with the same name
+	Given the position, it will print the maximum number of vertexes 
+	present in the parcel with the same name
 */
 static void commandMaximum(int pos, Cartography cartography, int n)
 {
@@ -584,7 +590,10 @@ static void extremeCoordinates(Parcel p1, BoolFun north, BoolFun south,
 // bol: north south east west
 
 // bol: north south east west
-/* prints the parcel from the cartography carts that has the nearest coordinates to the cardinal points */
+/* 
+prints the parcel from the cartography carts that has the nearest 
+coordinates to the cardinal points 
+*/
 void extremeParcel(Cartography carts, int len, BoolFun north, 
 					BoolFun south, BoolFun east, BoolFun west)
 {
@@ -743,18 +752,21 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 
 	for(int i = 0; i < n; i++)
 	{
-		if (sameIdentification(cartography[pos].identification, cartography[i].identification, 3))
+		if (sameIdentification(cartography[pos].identification, 
+								cartography[i].identification, 3))
 		{
 			towns++;
 			counties++;
 			districts++;
 		}
-		else if(sameIdentification(cartography[pos].identification, cartography[i].identification, 2))
+		else if(sameIdentification(cartography[pos].identification, 
+									cartography[i].identification, 2))
 		{
 			counties++;
 			districts++;
 		}
-		else if(sameIdentification(cartography[pos].identification, cartography[i].identification, 1))
+		else if(sameIdentification(cartography[pos].identification, 
+									cartography[i].identification, 1))
 		{
 			districts++;
 		}
@@ -909,8 +921,9 @@ static int bfs(Cartography carts, int n, int src, int dest)
 	int elems = 1; //number os elements added to the queue
 	int pop = 0; //number of elements removed from the queue
 	int current = src; //current as the father node during the iteration
-	
-	while (elems < n && pop < elems ) // while there are more elements to be queued and not all queue were removed
+
+	// while there are more elements to be queued and not all queue were removed
+	while (elems < n && pop < elems )
 	{
 		current = queue[pop++]; 
 
@@ -922,7 +935,8 @@ static int bfs(Cartography carts, int n, int src, int dest)
 				{
 					if (i != dest) //if it is not the parcel we want
 					{
-						queue[elems++] = i; //add it into the queue to have its neighbours checked
+						//add it into the queue to have its neighbours checked
+						queue[elems++] = i;
 						dist[i] = dist[current] + 1; //calculates its distance from the src
 					}
 					else
