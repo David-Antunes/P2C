@@ -318,7 +318,8 @@ bool insideParcel(Coordinates c, Parcel p)
 /* given two parcels, checks if they have at least a common coordinate */
 bool adjacentParcels(Parcel a, Parcel b)
 {
-	if (adjacentRings(a.edge, b.edge)) //checks if a's outer edges and b outer edges have share a coordinate
+	//checks if a's outer edges and b outer edges the same share a coordinate
+	if (adjacentRings(a.edge, b.edge)) 
 	{
 		return true;
 	}
@@ -327,13 +328,15 @@ bool adjacentParcels(Parcel a, Parcel b)
 
 	int bnHoles = b.nHoles;
 
-	for (int i = 0; i < bnHoles; i++) //checks if a's outer edges and b's holes share a coordinate
+	//checks if a's outer edges and b's holes share a coordinate
+	for (int i = 0; i < bnHoles; i++) 
 	{
 		if(adjacentRings(a.edge,b.holes[i])){
 			return true;
 		}
 	}
-	for (int i = 0; i < nHoles; i++) //checks if b's outer edges and a's holes share a coordinate
+	//checks if b's outer edges and a's holes share a coordinate
+	for (int i = 0; i < nHoles; i++)
 	{
 		if(adjacentRings(a.holes[i],b.edge)){
 			return true;
@@ -455,6 +458,9 @@ static void commandListCartography(Cartography cartography, int n)
 	showCartography(cartography, n);
 }
 
+/* 
+	Given a parcel, it counts the total number of vertexes present in the edge and all of the holes
+*/
 static int getTotalVertexes(Parcel p)
 {
 	int counter = p.edge.nVertexes;
@@ -480,8 +486,9 @@ static void searchMax(Cartography cartography, int n, int *max, int pos, int * p
 
 		while(sameIdentification(maxParcel.identification, cartography[i].identification, 3))
 	{
+
 		int maxVertexes = getTotalVertexes(cartography[i]);
-		if (*max < maxVertexes)
+		if (*max < maxVertexes) // If maxVertexes is bigger, max is changed with the new value
 		{
 			*max = maxVertexes;
 			maxParcel = cartography[i];
@@ -499,7 +506,9 @@ static void searchMax(Cartography cartography, int n, int *max, int pos, int * p
 		
 	}
 }
-
+/*
+	Given the position, it will print the maximum number of vertexes present in the parcel with the same name
+*/
 static void commandMaximum(int pos, Cartography cartography, int n)
 {
 	if (!checkArgs(pos) || !checkPos(pos, n))
@@ -508,7 +517,10 @@ static void commandMaximum(int pos, Cartography cartography, int n)
 	}
 	int max = getTotalVertexes(cartography[pos]);
 	int position = pos;
+
+	// Parses the cartography in a decreasing index
 	searchMax(cartography, n, &max, pos, &position, true);
+	// Parses the cartography in a increasing index
 	searchMax(cartography, n, &max, pos, &position, false);	
 
 	showParcel(position, cartography[position], max);
@@ -543,30 +555,32 @@ static bool westest(Coordinates c1, Coordinates c2)
 /** given a parcel, and 4 bool function that says who is north, south, west and north,
  *  it saves in the array res the coordinates of 
  * the northest, southest, eastern and western edges in array given as an argument  */
-static void extremeCoordinates(Parcel p1, BoolFun b1, BoolFun b2, 
-								BoolFun b3, BoolFun b4, Coordinates res[])
+static void extremeCoordinates(Parcel p1, BoolFun north, BoolFun south, 
+								BoolFun east, BoolFun west, Coordinates res[])
 {
 	Ring r = p1.edge;
 	Coordinates no = r.vertexes[0];
-	Coordinates s, e, w;
-	s = e = w = no;
+	Coordinates s = r.vertexes[0];
+	Coordinates e = r.vertexes[0];
+	Coordinates w = r.vertexes[0];
+
 	int len = r.nVertexes;
 
 	for (int i = 1; i < len; i++)
 	{
-		if (b1(r.vertexes[i], no))
+		if (north(r.vertexes[i], no))
 		{
 			no = r.vertexes[i];
 		}
-		if (b2(r.vertexes[i], s))
+		if (south(r.vertexes[i], s))
 		{
 			s = r.vertexes[i];
 		}
-		if (b3(r.vertexes[i], e))
+		if (east(r.vertexes[i], e))
 		{
 			e = r.vertexes[i];
 		}
-		if (b4(r.vertexes[i], w))
+		if (west(r.vertexes[i], w))
 		{
 			no = r.vertexes[i];
 		}
@@ -654,6 +668,12 @@ static void commandParcelExtremes(Cartography cartography, int n)
 	extremeParcel(cartography, n, northest, southest, easthern, westest);
 }
 
+/*
+	Prints the information of a given position
+	The information consists of the number of vertexes in the edge
+	and if there are any holes, it will also print the vertexes in the holes.
+	Finally it will print the boundingbox that delimits the parcel
+*/
 static void commandResume(int pos, Cartography cartography, int n)
 {
 	Parcel p = cartography[pos];
@@ -661,6 +681,7 @@ static void commandResume(int pos, Cartography cartography, int n)
 	showIdentification(pos, p.identification, 3);
 
 	printf("\n%4s %d ", "", p.edge.nVertexes);
+
 	if (p.nHoles != 0)
 	{
 		for (int i = 0; i < p.nHoles; i++)
@@ -672,19 +693,30 @@ static void commandResume(int pos, Cartography cartography, int n)
 	printf("\n");
 }
 
+
+/*
+	Given a pair of coordinates and a position of a parcel, 
+	it will print the distance between the given coordinates and the nearest 
+	vertexes present in the edge of the parcel
+*/
 static void commandTravel(double lat, double lon, int pos, Cartography cartography, int n)
 {
 	if (!checkPos(pos, n))
 	{
 		return;
 	}
+
 	Coordinates c1 = {lat, lon};
+
 	Parcel p = cartography[pos];
+
 	int len = p.edge.nVertexes;
 	Coordinates *cs = p.edge.vertexes;
 	double res = haversine(c1, cs[0]);
 	double aux;
 
+
+	//Searches for the nearest vertex 
 	for (int i = 1; i < len; i++)
 	{
 		aux = haversine(c1, cs[i]);
@@ -696,6 +728,12 @@ static void commandTravel(double lat, double lon, int pos, Cartography cartograp
 	printf(" %f\n", res);
 }
 
+
+/*
+	Prints the number of towns with the same name,
+	then prints the number of counties with the same name,
+	then finally, prints the number of districts with the same name.
+*/
 static void commandHowMany(int pos, Cartography cartography, int n)
 
 
@@ -705,49 +743,26 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 		return;
 	}
 
-
 	int towns = 0;
 	int counties = 0;
 	int districts = 0;
 
-	int i = pos;
-	Parcel p = cartography[pos];
-	towns++;
-	i--;
-	while (0 < i)
+	for(int i = 0; i < n; i++)
 	{
-		if (sameIdentification(p.identification, cartography[i].identification, 3))
+		if (sameIdentification(cartography[pos].identification, cartography[i].identification, 3))
 		{
 			towns++;
-			p = cartography[i];
-			i--;
+			counties++;
+			districts++;
 		}
-		else
-		{
-			break;
-		}
-	}
-
-	p = cartography[pos];
-	i = pos;
-	i++;
-	while (sameIdentification(p.identification, cartography[i].identification, 3))
-	{
-		towns++;
-		p = cartography[i];
-		i++;
-	}
-
-	for (i = 0; i < n; i++)
-	{
-		if (sameIdentification(cartography[i].identification, cartography[pos].identification, 2))
+		else if(sameIdentification(cartography[pos].identification, cartography[i].identification, 2))
 		{
 			counties++;
-			if (sameIdentification(cartography[i].identification, 
-				cartography[pos].identification, 1))
-			{
-				districts++;
-			}
+			districts++;
+		}
+		else if(sameIdentification(cartography[pos].identification, cartography[i].identification, 1))
+		{
+			districts++;
 		}
 	}
 
@@ -762,50 +777,74 @@ static void commandHowMany(int pos, Cartography cartography, int n)
 }
 
 
+/*
+	Searches inside of the string vector if there is an index with the given name
+*/
+static bool hasName(String name, StringVector sv, int n)
+{
+	for(int i = 0; i < n; i++)
+	{
+		//If it is the same strcmp returns 0 thus needing !
+		if (!strcmp(name, sv[i]))
+			return true;
+	}
+	return false;
+}
+/*
+	Prints the names of the counties present in the cartography in alphabetical order
+*/
 static void commandCounties(Cartography cartography, int n)
 {
 	StringVector counties;
 	strcpy(counties[0], cartography[0].identification.concelho);
+
 	int i = 0;
 	int ncounties = 0;
+
 	while (i < n)
 	{
-		if (strcmp(counties[ncounties], cartography[i].identification.concelho))
+		if (!hasName(cartography[i].identification.concelho, counties, ncounties))
 		{
-			ncounties++;
-			strcpy(counties[ncounties], cartography[i].identification.concelho);
+			strcpy(counties[ncounties++], cartography[i].identification.concelho);
 		}
 		i++;
 	}
-	ncounties++;
+
 	qsort(counties, ncounties, sizeof(String), v_strcmp);
 	showStringVector(counties, ncounties);
 }
 
+/*
+	Prints the names of the districts present in the cartography in alphabetical order
+*/
 static void commandDistricts(Cartography cartography, int n)
 {
 	StringVector districts;
 	strcpy(districts[0], cartography[0].identification.distrito);
+
 	int i = 0;
 	int ndistricts = 0;
+
 	while (i < n)
 	{
-		if (strcmp(districts[ndistricts], cartography[i].identification.distrito))
+		if (!hasName(cartography[i].identification.distrito, districts, ndistricts))
 		{
-			ndistricts++;
-			strcpy(districts[ndistricts], cartography[i].identification.distrito);
+			strcpy(districts[ndistricts++], cartography[i].identification.distrito);
 		}
 		i++;
 	}
-	ndistricts++;
+
 	qsort(districts, ndistricts, sizeof(String), v_strcmp);
 	showStringVector(districts, ndistricts);
 }
-
+/*
+	Prints which parcel has inside the given coordinates
+*/
 static void commandParcel(double lat, double lon, Cartography cartography, int n)
 {
 	bool found = false;
 	int pos = -1;
+
 	for (int i = 0; i < n && !found; i++)
 	{
 		Coordinates cords = coord(lat, lon);
@@ -815,6 +854,7 @@ static void commandParcel(double lat, double lon, Cartography cartography, int n
 			pos = i;
 		}
 	}
+
 	if (found)
 	{
 		showIdentification(pos, cartography[pos].identification, 3);
@@ -826,39 +866,42 @@ static void commandParcel(double lat, double lon, Cartography cartography, int n
 	}
 }
 
+/*
+	Prints the parcel that are adjacent to the given parcel with the given pos
+*/
+
 static void CommandAdjecent(int pos, Cartography cartography, int n)
 {
 	if (!checkPos(pos, n))
 	{
 		return;
 	}
-	int ids[n];
-	int nps = 0;
-	Parcel p = cartography[pos];
+	int position[n]; //Position of the adjacent parcel
+	int counter = 0; // Number of parcels adjacent
 
 	int j = 0;
 
 	while (j < n)
 	{
-		if (j != pos && adjacentParcels(p, cartography[j]))
+		if (j != pos && adjacentParcels(cartography[pos], cartography[j]))
 		{
-			ids[nps++] = j;
+			position[counter++] = j;
 		}
 		j++;
 	}
-	if (nps == 0)
+	if (counter == 0)
 	{
 		printf("NAO HA ADJACENCIAS\n");
 		return;
 	}
-	int haha;
-	for (int i = 0; i < nps; i++)
+	
+	for (int i = 0; i < counter; i++)
 	{
-		haha = ids[i];
-		showIdentification(haha, cartography[haha].identification, 3);
+		showIdentification(position[i], cartography[position[i]].identification, 3);
 		printf("\n");
 	}
 }
+
 /* performs a breadth search to find the number of paths from the parcel src to dest*/
 static int bfs(Cartography carts, int n, int src, int dest)
 {
@@ -907,6 +950,9 @@ static int bfs(Cartography carts, int n, int src, int dest)
 	return 0;
 }
 
+/*
+	Prints the number of frontiers the user has to pass to go from pos1 to pos2
+*/
 static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 {
 	if (!checkPos(pos1, n) || !checkPos(pos2, n))
@@ -914,6 +960,7 @@ static void commandFrontier(int pos1, int pos2, Cartography cartography, int n)
 		return;
 	}
 	int res = 0;
+
 	if (pos1 == pos2)
 	{
 		res = 0;
@@ -946,25 +993,25 @@ static void printSequence(int start, int end)
 	printf(" %d", start);
 }
 
-static void commandPartition(double distance, Cartography cartography, int n)
+static int getPartitions(double distance, List result[], Cartography cartography, int n)
 {
-	List result [n];
-	int resCounter = 0;
-	List subA = NULL;
-	int added[n];
-	int countAdded = 0;
-	memset(added, 0, n * sizeof(int));
+	int resCounter = 0; //Number of subsets
+	List subA = NULL; 
+	int added[n]; // Number of parcels added in the subset
 
+	memset(added, 0, n * sizeof(int));
 
 	subA = NULL;
 	for (int k = 0; k < n; k++)
-	{
+	{	
+		//Checks if the parcel is already used
 		if (added[k] == 0)
 		{
+			//Creates a new subset
 			added[k] = 1;
-			countAdded++;
 			subA = listPutAtEnd(subA, k);
 
+			//Checks for every parcel in the list if there are more parcels that can be add
 			for(List aux = subA; aux != NULL; aux = aux->next)
 			{
 				for (int z = 0; z < n; z++)
@@ -974,14 +1021,14 @@ static void commandPartition(double distance, Cartography cartography, int n)
 						if (distance >= haversine(cartography[aux->data].edge.vertexes[0], 
 												cartography[z].edge.vertexes[0]))
 						{
-							listPutAtEnd(aux, z);
-							added[z] = 1;
-							countAdded++;
+								listPutAtEnd(aux, z);
+								added[z] = 1;
 						}
 					}
 				}
 			}
 
+			// Stores the subset 
 			if (subA != NULL)
 			{
 				result[resCounter] = subA;
@@ -991,41 +1038,68 @@ static void commandPartition(double distance, Cartography cartography, int n)
 		}
 		subA = NULL;
 	}
+	return resCounter;
+}
 
-	int values[n];
+static int listToVector(List list, int * values)
+{
+	List subA = list;
 	int counter = 0;
-
-	for (int k = 0; k < resCounter; k++)
-	{
-		subA = result[k];
+	//Converts the list to vector
 
 		for(; subA != NULL; subA = subA->next)
 		{
 			values[counter++] = subA->data;
 			free(subA);
 		}
+	return counter;
+}
 
+/*
+	Partitions the parcels using the given distance, 
+	thus any parcel of a partition cant reach 
+	another parcel in an another partition
+*/
+static void commandPartition(double distance, Cartography cartography, int n)
+{
+
+	List result [n];//Lists of every subset
+	int resCounter = getPartitions(distance, result, cartography, n); //Number of subsets
+
+	int values[n];
+	int counter = 0;
+
+	for (int k = 0; k < resCounter; k++)
+	{
+
+		counter = listToVector(result[k],values);
+
+		//Sorts the vector
 		qsort(values, counter, sizeof(int), v_cmp);	
-		
+
 		int start = values[0];
 		int end = values[0];
 
+		//Prints each subset
 		for (int i = 0; i < counter; i++)
 		{
+			//Checks if the next position is invalid
 			if((i + 1) < counter)
 			{
+				//Checks if the next one is the succession of end 
 				if(values[i + 1] - end == 1) 
 				{
 					end = values[i + 1];
 				}
+
 				else
 				{	
-
 					printSequence(start,end);
+					//Changes to the next value in the vector
 					start = values[i+ 1];
 					end = values[i+ 1];
 				}
-				
+
 			}
 			else
 			{
